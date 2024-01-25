@@ -52,10 +52,12 @@ class BlockList {
     const elem = document.createElement("div");
     elem.classList.add("block-list");
     playField.appendChild(elem);
-    dragElement(elem);
+    dragElement(elem, this);
     this.elem = elem;
   }
   blocks = [];
+  x = 0;
+  y = 0;
 }
 
 class BlockListHandler {
@@ -65,11 +67,11 @@ class BlockListHandler {
     for (let i = 0; i < amount; i++) this.blockLists.push(new BlockList());
   }
 
-  mergeBlockLists(blockListNum, blockListNum2, pos) {
-    const blockList = this.blockLists[blockListNum];
-    blockList.mergeWithBlockList(pos, this.blockLists[blockListNum2]);
-    delete this.blockLists[blockListNum2];
-    this.blockLists.splice(blockListNum2, 1);
+  mergeBlockLists(blockList, blockList2, pos) {
+    if (typeof blockList == "number") blockList = this.blockLists[blockList];
+    if (typeof blockList2 == "number") blockList2 = this.blockLists[blockList2];
+    blockList.mergeWithBlockList(pos, blockList2);
+    this.blockLists.splice(this.blockLists.indexOf(blockList2), 1);
   }
 
   blockLists = [];

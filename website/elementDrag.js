@@ -1,4 +1,6 @@
-function dragElement(elem) {
+const blockHeight = 40;
+
+function dragElement(elem, blockList) {
   let pos1 = 0,
     pos2 = 0,
     pos3 = 0,
@@ -28,17 +30,42 @@ function dragElement(elem) {
     pos3 = e.clientX;
     pos4 = e.clientY;
     // set the element's new position:
-    const top = elem.offsetTop - pos2;
-    const left = elem.offsetLeft - pos1;
-    elem.style.top =
-      Math.min(Math.max(top, 0), parent.offsetHeight - elem.offsetHeight) +
-      "px";
-      elem.style.left =
-      Math.min(Math.max(left, 0), parent.offsetWidth - elem.offsetWidth) + "px";
+    let top = elem.offsetTop - pos2;
+    let left = elem.offsetLeft - pos1;
+    top = Math.min(Math.max(top, 0), parent.offsetHeight - elem.offsetHeight);
+    left = Math.min(Math.max(left, 0), parent.offsetWidth - elem.offsetWidth);
+    elem.style.top = top + "px";
+    elem.style.left = left + "px";
+    blockList.x = left;
+    blockList.y = top;
   }
 
   function closeDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
+
+    for (let i = 0; i < blockListHandler.blockLists.length; i++) {
+      const otherBlockList = blockListHandler.blockLists[i];
+      if (blockList == otherBlockList) continue;
+      const hoveringNum = isHoveringOverBlocklist(blockList, otherBlockList);
+      if (hoveringNum === false) continue;
+      blockListHandler.mergeBlockLists(otherBlockList, blockList, hoveringNum);
+      return;
+    }
   }
+}
+
+const snapDistanceY = blockHeight / 2;
+function isHoveringOverBlocklist(selected, other) {
+  const otherHeight = other.blocks.length * 40;
+  if (
+    selected.x > other.x - 40 &&
+    selected.x < other.x + 70 &&
+    selected.y > other.y + snapDistanceY &&
+    selected.y < other.y + snapDistanceY + otherHeight
+  ) {
+    const heightFromTop = selected.y - other.y - snapDistanceY;
+    return Math.floor(heightFromTop / blockHeight) + 1;
+  }
+  return false;
 }
