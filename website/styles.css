@@ -13,10 +13,14 @@ html,body {
     position: relative;
 }
 
+.block-list {
+    width: fit-content;
+    height: fit-content;
+    position: absolute;
+}
+
 .block {
     width: 100px;
     height: 40px;
     background-color: black;
-    position: absolute;
-    
 }

@@ -8,12 +8,32 @@ class Block {
     createHtmlElem(){
         const elem = document.createElement("div");
         elem.classList.add("block")
-        playField.appendChild(elem);
-        dragElement(elem)
         this.elem = elem;
     }
 }
-const block = new Block()
+
+class BlockList {
+  constructor(){
+    this.createElem()
+    this.addBlock();
+  }
+
+  addBlock() {
+    const newBlock = new Block();
+    this.elem.appendChild(newBlock.elem);
+    this.blocks.push(newBlock)
+  }
+
+  createElem() {
+    const elem = document.createElement("div");
+    elem.classList.add("block-list")
+    playField.appendChild(elem);
+    dragElement(elem);
+    this.elem = elem;
+  }
+  blocks = [];
+}
+const blockList = new BlockList()
 
 function dragElement(elmnt) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
