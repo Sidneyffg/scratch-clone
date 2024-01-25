@@ -1,25 +1,15 @@
-const blockHeight = 40;
-
 function dragElement(elem, blockList) {
   let pos1 = 0,
     pos2 = 0,
     pos3 = 0,
     pos4 = 0;
   const parent = elem.parentElement;
-  if (document.getElementById(elem.id + "header")) {
-    // if present, the header is where you move the DIV from:
-    document.getElementById(elem.id + "header").onmousedown = dragMouseDown;
-  } else {
-    // otherwise, move the DIV from anywhere inside the DIV:
-    elem.onmousedown = dragMouseDown;
-  }
+
+  elem.onmousedown = dragMouseDown;
+  let lastClickedBlock = null;
 
   function dragMouseDown(e) {
-    e.preventDefault();
-    const lastClickedBlock = findLastClickedBlock(blockList);
-    if (lastClickedBlock != 0) {
-      blockList.releaseFromBlockList(lastClickedBlock);
-    }
+    lastClickedBlock = findLastClickedBlock(blockList);
     pos3 = e.clientX;
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
@@ -28,6 +18,10 @@ function dragElement(elem, blockList) {
 
   function elementDrag(e) {
     e.preventDefault();
+    if (lastClickedBlock > 0) {
+      blockList.releaseFromBlockList(lastClickedBlock);
+      lastClickedBlock = null;
+    }
     // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
@@ -47,9 +41,10 @@ function dragElement(elem, blockList) {
   function closeDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
-
+    if (!blockList.blocks[0].canConnectTop) return;
     for (let i = 0; i < blockListHandler.blockLists.length; i++) {
       const otherBlockList = blockListHandler.blockLists[i];
+      if (!otherBlockList.blocks.lastElement().canConnectBottom) continue;
       if (blockList == otherBlockList) continue;
       const hoveringNum = isHoveringOverBlocklist(blockList, otherBlockList);
       if (hoveringNum === false) continue;
@@ -59,19 +54,41 @@ function dragElement(elem, blockList) {
   }
 }
 
-const snapDistanceY = blockHeight / 2;
+const snapDistanceX = 60;
 function isHoveringOverBlocklist(selected, other) {
-  const otherHeight = other.blocks.length * 40;
+  const otherHeight = getTotalHeightOfBlockList(other);
+  const firstSnapDistanceY = other.blocks[0].elem.offsetHeight / 2;
   if (
-    selected.x > other.x - 40 &&
-    selected.x < other.x + 70 &&
-    selected.y > other.y + snapDistanceY &&
-    selected.y < other.y + snapDistanceY + otherHeight
+    selected.x > other.x - snapDistanceX &&
+    selected.x < other.x + snapDistanceX &&
+    selected.y > other.y + firstSnapDistanceY &&
+    selected.y < other.y + firstSnapDistanceY + otherHeight
   ) {
-    const heightFromTop = selected.y - other.y - snapDistanceY;
-    return Math.floor(heightFromTop / blockHeight) + 1;
+    let passedHeight = 0;
+    const heightFromTop = selected.y - other.y;
+    for (let i = 0; i < other.blocks.length; i++) {
+      const block = other.blocks[i];
+      const blockHeight = block.elem.offsetHeight;
+      const snapDistanceY = blockHeight / 2;
+      passedHeight += snapDistanceY;
+      if (
+        passedHeight <= heightFromTop &&
+        passedHeight + 2 * snapDistanceY >= heightFromTop
+      )
+        return i + 1;
+      passedHeight += snapDistanceY;
+    }
+    console.log("failed to get hovering over block num");
   }
   return false;
+}
+
+function getTotalHeightOfBlockList(blockList) {
+  let height = 0;
+  blockList.blocks.forEach((block) => {
+    height += block.elem.offsetHeight;
+  });
+  return height;
 }
 
 function findLastClickedBlock(blockList) {
