@@ -3,8 +3,11 @@ const playField = document.getElementById("play-field");
 class Block {
   constructor(type) {
     this.createHtmlElem();
+    this.elem.addEventListener("mousedown", () => {
+      this.lastClick = Date.now();
+    });
   }
-
+  lastClick = 0;
   createHtmlElem() {
     const elem = document.createElement("div");
     elem.classList.add("block");
@@ -17,7 +20,7 @@ class Block {
 class BlockList {
   constructor() {
     this.createElem();
-    this.addBlock();
+    //this.addBlock();
   }
 
   addBlock(amount = 1) {
@@ -44,12 +47,32 @@ class BlockList {
     blockList.delete();
   }
 
+  releaseFromBlockList(startPos) {
+    const newBlockList = blockListHandler.addBlockList();
+    const top = this.elem.style.top;
+    const left = this.elem.style.left;
+    newBlockList.elem.style.top = top;
+    newBlockList.elem.style.left = left;
+    newBlockList.x = parseInt(left.slice(0, left.length - 2));
+    newBlockList.y = parseInt(top.slice(0, top.length - 2));
+    for (let i = 0; i < startPos; i++) {
+      newBlockList.elem.appendChild(this.blocks[0].elem);
+      newBlockList.blocks.push(this.blocks.shift());
+    }
+    const topStr = this.elem.style.top;
+    let currentTop = parseInt(topStr.slice(0, topStr.length - 2));
+    currentTop = currentTop ? currentTop : 0;
+    this.elem.style.top = currentTop + startPos * 40 + "px";
+  }
+
   delete() {
     this.elem.remove();
   }
 
   createElem() {
     const elem = document.createElement("div");
+    this.id = Math.floor(Math.random() * 60466176).toString(36);
+    elem.id = "block-list-" + this.id;
     elem.classList.add("block-list");
     playField.appendChild(elem);
     dragElement(elem, this);
@@ -63,7 +86,12 @@ class BlockList {
 class BlockListHandler {
   constructor() {}
 
-  addBlockList(amount = 1) {
+  addBlockList(amount = null) {
+    if (!amount) {
+      const newBlockList = new BlockList();
+      this.blockLists.push(newBlockList);
+      return newBlockList;
+    }
     for (let i = 0; i < amount; i++) this.blockLists.push(new BlockList());
   }
 
@@ -78,5 +106,5 @@ class BlockListHandler {
 }
 const blockListHandler = new BlockListHandler();
 blockListHandler.addBlockList(2);
-blockListHandler.blockLists[0].addBlock(4);
-blockListHandler.blockLists[1].addBlock(2);
+blockListHandler.blockLists[0].addBlock(5);
+blockListHandler.blockLists[1].addBlock(3);

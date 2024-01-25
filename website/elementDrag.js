@@ -16,6 +16,10 @@ function dragElement(elem, blockList) {
 
   function dragMouseDown(e) {
     e.preventDefault();
+    const lastClickedBlock = findLastClickedBlock(blockList);
+    if (lastClickedBlock != 0) {
+      blockList.releaseFromBlockList(lastClickedBlock);
+    }
     pos3 = e.clientX;
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
@@ -68,4 +72,15 @@ function isHoveringOverBlocklist(selected, other) {
     return Math.floor(heightFromTop / blockHeight) + 1;
   }
   return false;
+}
+
+function findLastClickedBlock(blockList) {
+  let idx = 0;
+  let lastClick = 0;
+  blockList.blocks.forEach((block, i) => {
+    if (block.lastClick <= lastClick) return;
+    lastClick = block.lastClick;
+    idx = i;
+  });
+  return idx;
 }
