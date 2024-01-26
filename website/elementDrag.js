@@ -44,10 +44,19 @@ function dragElement(elem, blockList) {
     if (!blockList.blocks[0].canConnectTop) return;
     for (let i = 0; i < blockListHandler.blockLists.length; i++) {
       const otherBlockList = blockListHandler.blockLists[i];
-      if (!otherBlockList.blocks.lastElement().canConnectBottom) continue;
       if (blockList == otherBlockList) continue;
       const hoveringNum = isHoveringOverBlocklist(blockList, otherBlockList);
       if (hoveringNum === false) continue;
+      if (
+        hoveringNum == otherBlockList.blocks.length &&
+        !otherBlockList.blocks.lastElement().canConnectBottom
+      )
+        continue;
+      if (
+        hoveringNum != otherBlockList.blocks.length &&
+        !blockList.blocks.lastElement().canConnectBottom
+      )
+        continue;
       blockListHandler.mergeBlockLists(otherBlockList, blockList, hoveringNum);
       return;
     }
