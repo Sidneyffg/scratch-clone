@@ -4,12 +4,16 @@ const blockTemplates = [
     color: "yellow",
     canConnectBottom: true,
     canConnectTop: false,
+    name: "start",
   },
   {
     content: ["Middle", { element: "input", type: "number" }],
     color: "green",
     canConnectBottom: true,
     canConnectTop: true,
+    run: (args) => {
+      console.log("hello");
+    },
   },
   {
     content: ["Stop", { element: "input", type: "number" }],
@@ -18,3 +22,9 @@ const blockTemplates = [
     canConnectTop: true,
   },
 ];
+
+const blockIds = {};
+blockTemplates.forEach((e, idx) => {
+  e.blockId = idx;
+  blockIds[e.name] = e.blockId;
+});

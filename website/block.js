@@ -7,8 +7,7 @@ class Block {
     });
     this.canConnectBottom = template.canConnectBottom;
     this.canConnectTop = template.canConnectTop;
-    this.elem.style.height =
-      (Math.floor(Math.random() * 100) + 40).toString() + "px";
+    this.blockId = template.blockId;
   }
   lastClick = 0;
   createHtmlElem(color) {
