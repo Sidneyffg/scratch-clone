@@ -3,14 +3,18 @@ class BlockInput {
     this.type = type;
     this.content = content;
     this.elem = elem;
-    this.elem.addEventListener("keyup", (e) =>
-      this.updateContent(e.value, true)
+    this.elem.addEventListener("keyup", () =>
+      this.updateContent(this.elem.value, true)
     );
   }
 
   updateContent(newContent, hasChanged = false) {
-    console.log("updateContent")
-    if (typeof newContent == "string") return (this.content = newContent);
+    console.log("updateContent");
+    if (typeof newContent == "string") {
+      if (this.type == "number") this.content = parseInt(newContent);
+      else this.content = newContent;
+      return;
+    }
   }
   type = null;
   content;

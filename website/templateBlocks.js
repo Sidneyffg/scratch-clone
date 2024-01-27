@@ -1,22 +1,44 @@
 const blockTemplates = [
   {
-    content: ["Start on", { element: "input", type: "number" }],
+    content: ["Start"],
     color: "yellow",
     canConnectBottom: true,
     canConnectTop: false,
     name: "start",
   },
   {
-    content: ["Middle", { element: "input", type: "number" }],
+    content: ["Log", { element: "input", type: "string" }],
     color: "green",
     canConnectBottom: true,
     canConnectTop: true,
-    run: (args) => {
-      console.log("hello");
+    run: (inputs) => {
+      console.log(inputs[0].content);
     },
   },
   {
-    content: ["Stop", { element: "input", type: "number" }],
+    content: ["Broadcast", { element: "input", type: "string" }],
+    color: "orange",
+    canConnectBottom: true,
+    canConnectTop: true,
+    run: function (inputs) {
+      const broadcastId = inputs[0].content;
+      if (!broadcastId) return;
+      this.broadcastBlockLists.forEach((e) => {
+        if (e.broadcastId == broadcastId) {
+          this.eventLoop.push(e.blockListId);
+        }
+      });
+    },
+  },
+  {
+    content: ["Run on recieve", { element: "input", type: "string" }],
+    color: "orange",
+    canConnectBottom: true,
+    canConnectTop: false,
+    name: "recieveBroadcast",
+  },
+  {
+    content: ["Stop"],
     color: "red",
     canConnectBottom: false,
     canConnectTop: true,

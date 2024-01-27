@@ -54,6 +54,8 @@ class BlockList {
     this.id = Math.floor(Math.random() * 60466176).toString(36);
     elem.id = "block-list-" + this.id;
     elem.classList.add("block-list");
+    elem.style.top = this.y + "px";
+    elem.style.left = this.x + "px";
     playField.appendChild(elem);
     dragElement(elem, this);
     this.elem = elem;
