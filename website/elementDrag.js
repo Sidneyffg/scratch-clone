@@ -104,7 +104,6 @@ function isHoveringOverBlocklist(selected, other) {
         selected.x > other.x + indentation - snapDistanceX &&
         selected.x < other.x + indentation + snapDistanceX
       ) {
-        console.log("snapped");
         return i + 1;
       }
       passedHeight += snapDistanceY;

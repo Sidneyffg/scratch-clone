@@ -62,6 +62,10 @@ class BlockList {
     let currentTop = parseInt(topStr.slice(0, topStr.length - 2));
     currentTop = currentTop ? currentTop : 0;
     this.elem.style.top = currentTop + missingBlockHeight + "px";
+    this.elem.style.left =
+      this.x +
+      this.blocks[0].indentation * this.blocks[0].indentationWidth +
+      "px";
     this.reloadIndentations();
     newBlockList.reloadIndentations();
   }
