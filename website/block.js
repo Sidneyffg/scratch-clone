@@ -8,7 +8,11 @@ class Block {
     this.canConnectBottom = template.canConnectBottom;
     this.canConnectTop = template.canConnectTop;
     this.blockId = template.blockId;
-    this.loopBlock = template.loopBlock;
+    this.isDubbleBlock = template.isDubbleBlock;
+    if (this.isDubbleBlock) {
+      this.dubbleBlock = template.dubbleBlock;
+      this.isFirstDubbleBlock = template.isFirstDubbleBlock;
+    }
   }
   lastClick = 0;
   createHtmlElem(color) {
@@ -16,6 +20,13 @@ class Block {
     elem.classList.add("block");
     elem.style.backgroundColor = color;
     this.elem = elem;
+  }
+
+  indentation = 0;
+  indentationWidth = 20;
+  updateIndentation(indentation) {
+    this.elem.style.marginLeft = indentation * this.indentationWidth + "px";
+    this.indentation = indentation;
   }
 
   loadContent(content) {

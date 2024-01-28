@@ -27,7 +27,9 @@ class Runner {
     this.compiledBlockLists = [];
     this.startBlockListIds = [];
     this.broadcastBlockLists = [];
-    blockLists.forEach((blockList, idx) => {
+    let idx = 0;
+    blockLists.forEach((blockList) => {
+      if (blockList.static) return;
       const compiledBlockList = [];
       blockList.blocks.forEach((block) => {
         compiledBlockList.push({ action: block.blockId, inputs: block.inputs });
@@ -40,6 +42,7 @@ class Runner {
           broadcastId: compiledBlockList[0].inputs[0].content,
         });
       this.compiledBlockLists.push(compiledBlockList);
+      idx++;
     });
     console.log(`Compiled all blockLists (${Date.now() - timeStamp} ms)`);
     console.log(this.compiledBlockLists);

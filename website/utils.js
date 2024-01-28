@@ -7,6 +7,10 @@ function createElem(type, data = null) {
   return elem;
 }
 
+function isSecondDubbleBlock(block) {
+  return block.isDubbleBlock && !block.isFirstDubbleBlock;
+}
+
 Array.prototype.lastElement = function () {
   if (this.length == 0) return null;
   return this[this.length - 1];

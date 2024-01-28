@@ -25,6 +25,7 @@ class BlockList {
       this.blocks.splice(pos, 0, ...blockList.blocks);
     }
     blockList.delete();
+    this.reloadIndentations();
   }
 
   releaseFromBlockList(startPos) {
@@ -41,10 +42,28 @@ class BlockList {
       newBlockList.elem.appendChild(this.blocks[0].elem);
       newBlockList.blocks.push(this.blocks.shift());
     }
+    let depth = 0;
+    for (let i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i];
+      if (isSecondDubbleBlock(block)) {
+        if (depth == 0) {
+          const blocksToRemove = this.blocks.length - i;
+          for (let j = 0; j < blocksToRemove; j++) {
+            newBlockList.elem.appendChild(this.blocks[i].elem);
+            newBlockList.blocks.push(this.blocks.splice(i, 1)[0]);
+          }
+          break;
+        }
+        depth--;
+      }
+      if (block.isFirstDubbleBlock) depth++;
+    }
     const topStr = this.elem.style.top;
     let currentTop = parseInt(topStr.slice(0, topStr.length - 2));
     currentTop = currentTop ? currentTop : 0;
     this.elem.style.top = currentTop + missingBlockHeight + "px";
+    this.reloadIndentations();
+    newBlockList.reloadIndentations();
   }
 
   delete() {
@@ -63,6 +82,15 @@ class BlockList {
       blockTemplates[this.blocks[0].blockId]
     );
     this.static = false;
+  }
+
+  reloadIndentations() {
+    let indentation = 0;
+    this.blocks.forEach((block) => {
+      if (isSecondDubbleBlock(block)) indentation--;
+      block.updateIndentation(indentation);
+      if (block.isFirstDubbleBlock) indentation++;
+    });
   }
 
   createElem(elemToAppend) {
