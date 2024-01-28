@@ -1,6 +1,8 @@
 class BlockList {
-  constructor() {
-    this.createElem();
+  constructor(elemToAppend = null, staticBlock = false) {
+    this.static = staticBlock;
+    if (!elemToAppend) elemToAppend = playField;
+    this.createElem(elemToAppend);
   }
 
   addBlock(template) {
@@ -49,14 +51,30 @@ class BlockList {
     this.elem.remove();
   }
 
-  createElem() {
+  deStatic() {
+    const pos = this.elem.getBoundingClientRect();
+    const parentDiv = this.elem.parentElement;
+    this.elem.classList.remove("static");
+    playField.appendChild(this.elem);
+    this.elem.style.left = pos.left + "px";
+    this.elem.style.top = pos.top + "px";
+    blockDisplay.fillDisplayDiv(
+      parentDiv,
+      blockTemplates[this.blocks[0].blockId]
+    );
+    this.static = false;
+  }
+
+  createElem(elemToAppend) {
     const elem = document.createElement("div");
     this.id = Math.floor(Math.random() * 60466176).toString(36);
     elem.id = "block-list-" + this.id;
     elem.classList.add("block-list");
+    if (this.static) elem.classList.add("static");
     elem.style.top = this.y + "px";
     elem.style.left = this.x + "px";
-    playField.appendChild(elem);
+    elemToAppend.appendChild(elem);
+
     dragElement(elem, this);
     this.elem = elem;
   }

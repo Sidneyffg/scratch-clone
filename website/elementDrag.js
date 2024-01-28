@@ -3,7 +3,6 @@ function dragElement(elem, blockList) {
     pos2 = 0,
     pos3 = 0,
     pos4 = 0;
-  const parent = elem.parentElement;
 
   elem.onmousedown = dragMouseDown;
   let lastClickedBlock = null;
@@ -14,6 +13,8 @@ function dragElement(elem, blockList) {
     pos4 = e.clientY;
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
+    if (!blockList.static) return;
+    blockList.deStatic();
   }
 
   function elementDrag(e) {
@@ -30,8 +31,14 @@ function dragElement(elem, blockList) {
     // set the element's new position:
     let top = elem.offsetTop - pos2;
     let left = elem.offsetLeft - pos1;
-    top = Math.min(Math.max(top, 0), parent.offsetHeight - elem.offsetHeight);
-    left = Math.min(Math.max(left, 0), parent.offsetWidth - elem.offsetWidth);
+    top = Math.min(
+      Math.max(top, 0),
+      playField.offsetHeight - elem.offsetHeight
+    );
+    left = Math.min(
+      Math.max(left, 0),
+      playField.offsetWidth - elem.offsetWidth
+    );
     elem.style.top = top + "px";
     elem.style.left = left + "px";
     blockList.x = left;
@@ -41,6 +48,10 @@ function dragElement(elem, blockList) {
   function closeDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
+    if (blockList.x + 20 < blockDisplay.width) {
+      blockListHandler.deleteBlockList(blockList);
+      return;
+    }
     if (!blockList.blocks[0].canConnectTop) return;
     for (let i = 0; i < blockListHandler.blockLists.length; i++) {
       const otherBlockList = blockListHandler.blockLists[i];

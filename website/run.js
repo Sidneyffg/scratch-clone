@@ -34,7 +34,7 @@ class Runner {
       });
       if (compiledBlockList[0].action == blockIds.start)
         this.startBlockListIds.push(idx);
-      if (compiledBlockList[0].action == blockIds.recieveBroadcast)
+      if (compiledBlockList[0].action == blockIds.define)
         this.broadcastBlockLists.push({
           blockListId: idx,
           broadcastId: compiledBlockList[0].inputs[0].content,
@@ -48,6 +48,6 @@ class Runner {
   eventLoop;
   compiledBlockLists;
   startBlockListIds;
-  // { blockListId, broadcastId }
+  // [{ blockListId, broadcastId }]
   broadcastBlockLists;
 }

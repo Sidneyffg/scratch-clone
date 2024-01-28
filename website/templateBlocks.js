@@ -4,6 +4,7 @@ const blockTemplates = [
     color: "yellow",
     canConnectBottom: true,
     canConnectTop: false,
+    isDubbleBlock: false,
     name: "start",
   },
   {
@@ -11,15 +12,17 @@ const blockTemplates = [
     color: "green",
     canConnectBottom: true,
     canConnectTop: true,
+    isDubbleBlock: false,
     run: (inputs) => {
       console.log(inputs[0].content);
     },
   },
   {
-    content: ["Broadcast", { element: "input", type: "string" }],
+    content: ["Call", { element: "input", type: "string" }],
     color: "orange",
     canConnectBottom: true,
     canConnectTop: true,
+    isDubbleBlock: false,
     run: function (inputs) {
       const broadcastId = inputs[0].content;
       if (!broadcastId) return;
@@ -31,17 +34,32 @@ const blockTemplates = [
     },
   },
   {
-    content: ["Run on recieve", { element: "input", type: "string" }],
+    content: ["Define", { element: "input", type: "string" }],
     color: "orange",
     canConnectBottom: true,
     canConnectTop: false,
-    name: "recieveBroadcast",
+    isDubbleBlock: false,
+    name: "define",
   },
   {
-    content: ["Stop"],
-    color: "red",
+    content: ["Forever"],
+    color: "yellow",
+    canConnectBottom: true,
+    canConnectTop: true,
+    isDubbleBlock: true,
+    dubbleBlock: "closeForever",
+    isFirstDubbleBlock: true,
+    name: "forever",
+  },
+  {
+    content: [],
+    color: "yellow",
     canConnectBottom: false,
     canConnectTop: true,
+    isDubbleBlock: true,
+    dubbleBlock: "forever",
+    isFirstDubbleBlock: false,
+    name: "closeForever",
   },
 ];
 

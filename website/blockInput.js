@@ -6,10 +6,12 @@ class BlockInput {
     this.elem.addEventListener("keyup", () =>
       this.updateContent(this.elem.value, true)
     );
+    this.elem.addEventListener("focusout", () => {
+      this.updateContent(this.elem.value, true);
+    });
   }
 
   updateContent(newContent, hasChanged = false) {
-    console.log("updateContent");
     if (typeof newContent == "string") {
       if (this.type == "number") this.content = parseInt(newContent);
       else this.content = newContent;

@@ -8,6 +8,7 @@ class Block {
     this.canConnectBottom = template.canConnectBottom;
     this.canConnectTop = template.canConnectTop;
     this.blockId = template.blockId;
+    this.loopBlock = template.loopBlock;
   }
   lastClick = 0;
   createHtmlElem(color) {
