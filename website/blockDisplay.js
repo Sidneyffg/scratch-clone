@@ -1,7 +1,7 @@
 class BlockDisplay {
   constructor() {
     this.elem = document.getElementById("block-display");
-    this.width = this.elem.getBoundingClientRect().width;
+    this.width = this.elem.offsetWidth;
     this.init();
   }
 

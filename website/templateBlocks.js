@@ -13,7 +13,7 @@ const blockTemplates = [
     canConnectBottom: true,
     canConnectTop: true,
     isDubbleBlock: false,
-    run: (inputs) => {
+    run({ inputs }) {
       console.log(inputs[0].content);
     },
   },
@@ -23,12 +23,15 @@ const blockTemplates = [
     canConnectBottom: true,
     canConnectTop: true,
     isDubbleBlock: false,
-    run: function (inputs) {
+    run({ inputs, addEventLoopItem, broadcastBlockLists }) {
       const broadcastId = inputs[0].content;
       if (!broadcastId) return;
-      this.broadcastBlockLists.forEach((e) => {
+      broadcastBlockLists.forEach((e) => {
         if (e.broadcastId == broadcastId) {
-          this.eventLoop.push(e.blockListId);
+          addEventLoopItem({
+            compiledBlockListId: e.blockListId,
+            startLine: 0,
+          });
         }
       });
     },
@@ -60,46 +63,43 @@ const blockTemplates = [
     dubbleBlock: "forever",
     isFirstDubbleBlock: false,
     name: "closeForever",
+    run({
+      compiledBlockListId,
+      compiledBlockList,
+      compiledBlockIdx,
+      addEventLoopItem,
+    }) {
+      const connectedBlock = getCompiledConnectedDubbleBlock(
+        compiledBlockList,
+        compiledBlockIdx
+      );
+      console.log(connectedBlock);
+      addEventLoopItem({ compiledBlockListId, startLine: connectedBlock });
+    },
   },
   {
-    content: ["Forever"],
-    color: "green",
+    content: ["Repeat", { element: "input", type: "number" }, "times"],
+    color: "yellow",
     canConnectBottom: true,
     canConnectTop: true,
     isDubbleBlock: true,
-    dubbleBlock: "closeForever2",
+    dubbleBlock: "closeForever",
     isFirstDubbleBlock: true,
-    name: "forever2",
+    name: "repeat",
+    run(inputs) {
+      const repeatNumber = inputs[0].content;
+    },
   },
   {
     content: [],
-    color: "green",
+    color: "yellow",
     canConnectBottom: false,
     canConnectTop: true,
     isDubbleBlock: true,
-    dubbleBlock: "forever2",
+    dubbleBlock: "forever",
     isFirstDubbleBlock: false,
-    name: "closeForever2",
-  },
-  {
-    content: ["Forever"],
-    color: "blue",
-    canConnectBottom: true,
-    canConnectTop: true,
-    isDubbleBlock: true,
-    dubbleBlock: "closeForever3",
-    isFirstDubbleBlock: true,
-    name: "forever3",
-  },
-  {
-    content: [],
-    color: "blue",
-    canConnectBottom: false,
-    canConnectTop: true,
-    isDubbleBlock: true,
-    dubbleBlock: "forever3",
-    isFirstDubbleBlock: false,
-    name: "closeForever3",
+    name: "closeRepeat",
+    run() {},
   },
 ];
 

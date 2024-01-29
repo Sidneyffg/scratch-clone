@@ -161,3 +161,31 @@ function getConnectedDubbleBlock(blockList, blockNum) {
   }
   console.log("Failed to find conneced dubble block...");
 }
+
+function getCompiledConnectedDubbleBlock(compiledBlockList, blockNum) {
+  const blockTemplate = blockTemplates[compiledBlockList[blockNum].action];
+  const dubbleBlockId = blockIds[blockTemplate.dubbleBlock];
+  let depth = 0;
+  if (blockTemplate.isFirstDubbleBlock) {
+    for (let i = blockNum + 1; i < compiledBlockList.length; i++) {
+      if (compiledBlockList[i].action == dubbleBlockId) {
+        if (depth == 0) return i;
+        depth--;
+      } else if (
+        compiledBlockList[i].action == compiledBlockList[blockNum].action
+      )
+        depth++;
+    }
+  } else {
+    for (let i = blockNum - 1; i >= 0; i--) {
+      if (compiledBlockList[i].action == dubbleBlockId) {
+        if (depth == 0) return i;
+        depth--;
+      } else if (
+        compiledBlockList[i].action == compiledBlockList[blockNum].action
+      )
+        depth++;
+    }
+  }
+  console.log("Failed to find conneced dubble block...");
+}

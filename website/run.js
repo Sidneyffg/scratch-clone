@@ -3,7 +3,9 @@ class Runner {
     this.compile(blockListHandler.blockLists);
 
     this.eventLoop = [];
-    this.eventLoop.push(...this.startBlockListIds);
+    this.startBlockListIds.forEach((e) => {
+      this.eventLoop.push({ compiledBlockListId: e, startLine: 0 });
+    });
     console.log("Event loop:", this.eventLoop);
 
     while (true) {
@@ -13,13 +15,28 @@ class Runner {
     }
   }
 
-  runEvent(eventLoopItem) {
-    console.log(`Running compiled blockList with id ${eventLoopItem}`);
-    const compiledBlockList = this.compiledBlockLists[eventLoopItem];
-    compiledBlockList.forEach((compiledBlock) => {
-      if (typeof blockTemplates[compiledBlock.action].run != "function") return;
-      blockTemplates[compiledBlock.action].run.call(this, compiledBlock.inputs);
-    });
+  runEvent({ compiledBlockListId, startLine }) {
+    console.log(`Running compiled blockList with id ${compiledBlockListId}`);
+    const compiledBlockList = this.compiledBlockLists[compiledBlockListId];
+    for (let i = startLine; i < compiledBlockList.length; i++) {
+      const compiledBlock = compiledBlockList[i];
+      if (typeof blockTemplates[compiledBlock.action].run != "function")
+        continue;
+      blockTemplates[compiledBlock.action].run({
+        inputs: compiledBlock.inputs,
+        compiledBlockListId,
+        compiledBlockList,
+        compiledBlockIdx: i,
+        compiledBlockData: compiledBlock.data,
+        editCompiledBlockData(newData) {
+          compiledBlock.data = newData;
+        },
+        addEventLoopItem: (eventLoopItem) => {
+          this.eventLoop.push(eventLoopItem);
+        },
+        broadcastBlockLists: this.broadcastBlockLists,
+      });
+    }
   }
 
   compile(blockLists) {
@@ -32,7 +49,11 @@ class Runner {
       if (blockList.static) return;
       const compiledBlockList = [];
       blockList.blocks.forEach((block) => {
-        compiledBlockList.push({ action: block.blockId, inputs: block.inputs });
+        compiledBlockList.push({
+          action: block.blockId,
+          inputs: block.inputs,
+          data: null,
+        });
       });
       if (compiledBlockList[0].action == blockIds.start)
         this.startBlockListIds.push(idx);
