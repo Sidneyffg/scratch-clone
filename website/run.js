@@ -2,17 +2,46 @@ class Runner {
   async run() {
     this.compile(blockListHandler.blockLists);
 
-    this.eventLoop = [];
-    this.startBlockListIds.forEach((e) => {
-      this.eventLoop.push({ compiledBlockListId: e, startLine: 0 });
-    });
-    console.log("Event loop:", this.eventLoop);
+    this.initEventLoop();
 
     while (true) {
-      if (this.eventLoop.length == 0) break;
+      if (this.eventLoop.length == 0) {
+        if (this.nextEventLoop.length == 0) break;
+        await this.swapEventLoops();
+      }
       this.runEvent(this.eventLoop[0]);
       this.eventLoop.shift();
     }
+  }
+
+  initEventLoop() {
+    this.eventLoop = [];
+    this.nextEventLoop = [];
+    this.startBlockListIds.forEach((e) => {
+      this.eventLoop.push({ compiledBlockListId: e, startLine: 0 });
+    });
+    this.startTimestamp = Date.now();
+    console.log("Event loop:", this.eventLoop);
+  }
+
+  targetFramerate = 60;
+  frameTime = Math.round(1000 / this.targetFramerate);
+  swapEventLoops() {
+    return new Promise((resolve) => {
+      console.log("Next frame");
+      this.eventLoop = this.nextEventLoop;
+      this.nextEventLoop = [];
+      const timestamp = Date.now();
+      const diff = this.frameTime - (timestamp - this.startTimestamp);
+      this.startTimestamp = timestamp;
+      if (diff > 0) {
+        this.startTimestamp += diff;
+        setTimeout(() => {
+          console.log(`Waited ${diff} ms...`);
+          resolve();
+        }, diff);
+      } else resolve();
+    });
   }
 
   runEvent({ compiledBlockListId, startLine }) {
@@ -32,7 +61,7 @@ class Runner {
           compiledBlock.data = newData;
         },
         addEventLoopItem: (eventLoopItem) => {
-          this.eventLoop.push(eventLoopItem);
+          this.nextEventLoop.push(eventLoopItem);
         },
         broadcastBlockLists: this.broadcastBlockLists,
       });

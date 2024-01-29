@@ -73,7 +73,6 @@ const blockTemplates = [
         compiledBlockList,
         compiledBlockIdx
       );
-      console.log(connectedBlock);
       addEventLoopItem({ compiledBlockListId, startLine: connectedBlock });
     },
   },
@@ -83,10 +82,10 @@ const blockTemplates = [
     canConnectBottom: true,
     canConnectTop: true,
     isDubbleBlock: true,
-    dubbleBlock: "closeForever",
+    dubbleBlock: "closeRepeat",
     isFirstDubbleBlock: true,
     name: "repeat",
-    run(inputs) {
+    run({ inputs }) {
       const repeatNumber = inputs[0].content;
     },
   },
@@ -96,7 +95,7 @@ const blockTemplates = [
     canConnectBottom: false,
     canConnectTop: true,
     isDubbleBlock: true,
-    dubbleBlock: "forever",
+    dubbleBlock: "repeat",
     isFirstDubbleBlock: false,
     name: "closeRepeat",
     run() {},
