@@ -23,16 +23,21 @@ const blockTemplates = [
     canConnectBottom: true,
     canConnectTop: true,
     isDubbleBlock: false,
-    run({ inputs, addEventLoopItem, broadcastBlockLists }) {
+    run({
+      inputs,
+      templateCompiledBlockLists,
+      createCompiledBlockList,
+      addEventLoopItem,
+      broadcastBlockLists,
+    }) {
       const broadcastId = inputs[0].content;
       if (!broadcastId) return;
       broadcastBlockLists.forEach((e) => {
-        if (e.broadcastId == broadcastId) {
-          addEventLoopItem({
-            compiledBlockListId: e.blockListId,
-            startLine: 0,
-          });
-        }
+        if (e.broadcastId != broadcastId) return;
+        const id = createCompiledBlockList(
+          templateCompiledBlockLists[e.blockListId]
+        );
+        addEventLoopItem(id, 0);
       });
     },
   },
@@ -73,7 +78,7 @@ const blockTemplates = [
         compiledBlockList,
         compiledBlockIdx
       );
-      addEventLoopItem({ compiledBlockListId, startLine: connectedBlock });
+      addEventLoopItem(compiledBlockListId, connectedBlock);
     },
   },
   {
