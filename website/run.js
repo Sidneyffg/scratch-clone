@@ -67,6 +67,7 @@ class Runner {
   runEvent({ compiledBlockListId, startLine }) {
     console.log(`Running compiled blockList with id ${compiledBlockListId}`);
     const compiledBlockList = this.compiledBlockLists[compiledBlockListId];
+    let stopEvent = false;
     for (let i = startLine; i < compiledBlockList.length; i++) {
       const compiledBlock = compiledBlockList[i];
       if (typeof blockTemplates[compiledBlock.action].run != "function")
@@ -76,16 +77,22 @@ class Runner {
         compiledBlockListId,
         compiledBlockList,
         compiledBlockIdx: i,
-        compiledBlockData: compiledBlock.data,
-        editCompiledBlockData(newData) {
-          compiledBlock.data = newData;
+        compiledBlockData: {
+          data: compiledBlock.data,
+          set(newData) {
+            compiledBlock.data = newData;
+          },
         },
         addEventLoopItem: (...args) => this.addEventLoopItem(...args),
         createCompiledBlockList: (...args) =>
           this.createCompiledBlockList(...args),
         templateCompiledBlockLists: this.templateCompiledBlockLists,
         broadcastBlockLists: this.broadcastBlockLists,
+        stopEvent: () => {
+          stopEvent = true;
+        },
       });
+      if (stopEvent) break;
     }
   }
 
@@ -107,9 +114,14 @@ class Runner {
   /**
    *
    * @param {compiledBlockListId} id
+   * @param {number} startLine
+   * @param {Object} options
+   * @param {boolean} options.thisFrame
    */
-  addEventLoopItem(compiledBlockListId, startLine) {
-    this.nextEventLoop.push({ compiledBlockListId, startLine });
+  addEventLoopItem(compiledBlockListId, startLine, options = {}) {
+    const event = { compiledBlockListId, startLine };
+    if (options.thisFrame) this.eventLoop.push(event);
+    else this.nextEventLoop.push(event);
   }
 
   compile(blockLists) {

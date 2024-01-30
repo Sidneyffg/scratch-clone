@@ -90,20 +90,60 @@ const blockTemplates = [
     dubbleBlock: "closeRepeat",
     isFirstDubbleBlock: true,
     name: "repeat",
-    run({ inputs }) {
-      const repeatNumber = inputs[0].content;
+    run({
+      inputs,
+      compiledBlockList,
+      compiledBlockIdx,
+      compiledBlockListId,
+      compiledBlockData,
+      addEventLoopItem,
+      stopEvent,
+    }) {
+      if (compiledBlockData.data == null) {
+        const repeatNumber = inputs[0].content;
+        if (!repeatNumber) compiledBlockData.set(0);
+        else compiledBlockData.set(repeatNumber - 1);
+        return;
+      }
+      if (compiledBlockData.data == 0) {
+        const idx =
+          getCompiledConnectedDubbleBlock(compiledBlockList, compiledBlockIdx) +
+          1;
+        if (idx >= compiledBlockList.length) {
+          stopEvent();
+          return;
+        }
+        addEventLoopItem(compiledBlockListId, idx, { thisFrame: true });
+        stopEvent();
+        return;
+      }
+      compiledBlockData.set(compiledBlockData.data - 1);
     },
   },
   {
     content: [],
     color: "yellow",
-    canConnectBottom: false,
+    canConnectBottom: true,
     canConnectTop: true,
     isDubbleBlock: true,
     dubbleBlock: "repeat",
     isFirstDubbleBlock: false,
     name: "closeRepeat",
-    run() {},
+    run({
+      compiledBlockList,
+      compiledBlockIdx,
+      addEventLoopItem,
+      compiledBlockListId,
+      stopEvent,
+    }) {
+      const idx = getCompiledConnectedDubbleBlock(
+        compiledBlockList,
+        compiledBlockIdx
+      );
+      console.log("added");
+      addEventLoopItem(compiledBlockListId, idx);
+      stopEvent();
+    },
   },
 ];
 
