@@ -99,25 +99,36 @@ const blockTemplates = [
       addEventLoopItem,
       stopEvent,
     }) {
-      if (compiledBlockData.data == null) {
+      let action;
+      let data = compiledBlockData.get();
+      if (data == null) {
         const repeatNumber = inputs[0].content;
-        if (!repeatNumber) compiledBlockData.set(0);
-        else compiledBlockData.set(repeatNumber - 1);
-        return;
-      }
-      if (compiledBlockData.data == 0) {
-        const idx =
-          getCompiledConnectedDubbleBlock(compiledBlockList, compiledBlockIdx) +
-          1;
-        if (idx >= compiledBlockList.length) {
-          stopEvent();
-          return;
+        if (!repeatNumber) action = "continue";
+        else {
+          compiledBlockData.set(repeatNumber);
+          data = repeatNumber;
+          action = "loop";
         }
-        addEventLoopItem(compiledBlockListId, idx, { thisFrame: true });
-        stopEvent();
-        return;
+      } else if (data == 0) action = "continue";
+      else action = "loop";
+
+      switch (action) {
+        case "continue":
+          const idx =
+            getCompiledConnectedDubbleBlock(
+              compiledBlockList,
+              compiledBlockIdx
+            ) + 1;
+          if (idx >= compiledBlockList.length) break;
+          addEventLoopItem(compiledBlockListId, idx);
+          compiledBlockData.reset();
+          break;
+        case "loop":
+          addEventLoopItem(compiledBlockListId, compiledBlockIdx + 1);
+          compiledBlockData.set(data - 1);
+          break;
       }
-      compiledBlockData.set(compiledBlockData.data - 1);
+      stopEvent();
     },
   },
   {
@@ -129,20 +140,12 @@ const blockTemplates = [
     dubbleBlock: "repeat",
     isFirstDubbleBlock: false,
     name: "closeRepeat",
-    run({
-      compiledBlockList,
-      compiledBlockIdx,
-      addEventLoopItem,
-      compiledBlockListId,
-      stopEvent,
-    }) {
+    run({ compiledBlockList, compiledBlockIdx, goToBlock }) {
       const idx = getCompiledConnectedDubbleBlock(
         compiledBlockList,
         compiledBlockIdx
       );
-      console.log("added");
-      addEventLoopItem(compiledBlockListId, idx);
-      stopEvent();
+      goToBlock(idx);
     },
   },
 ];

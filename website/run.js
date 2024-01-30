@@ -65,7 +65,9 @@ class Runner {
   }
 
   runEvent({ compiledBlockListId, startLine }) {
-    console.log(`Running compiled blockList with id ${compiledBlockListId}`);
+    console.log(
+      `Running compiled blockList with id ${compiledBlockListId} from block ${startLine}`
+    );
     const compiledBlockList = this.compiledBlockLists[compiledBlockListId];
     let stopEvent = false;
     for (let i = startLine; i < compiledBlockList.length; i++) {
@@ -78,9 +80,14 @@ class Runner {
         compiledBlockList,
         compiledBlockIdx: i,
         compiledBlockData: {
-          data: compiledBlock.data,
+          get() {
+            return compiledBlock.data;
+          },
           set(newData) {
             compiledBlock.data = newData;
+          },
+          reset() {
+            compiledBlock.data = null;
           },
         },
         addEventLoopItem: (...args) => this.addEventLoopItem(...args),
@@ -90,6 +97,9 @@ class Runner {
         broadcastBlockLists: this.broadcastBlockLists,
         stopEvent: () => {
           stopEvent = true;
+        },
+        goToBlock: (blockIdx) => {
+          i = blockIdx - 1;
         },
       });
       if (stopEvent) break;
