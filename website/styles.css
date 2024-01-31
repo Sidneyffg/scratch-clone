@@ -3,6 +3,16 @@
   font-family: "roboto";
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
 html,
 body {
   height: 100%;
@@ -65,7 +75,7 @@ main {
 
 .block > input {
   display: inline-block;
-  width: 30px;
+  width: 60px;
   background-color: white;
   border: 1px black solid;
   outline: none;
@@ -78,4 +88,38 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   appearance: none;
   margin: 0;
+}
+
+#new-variable-popup {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+#new-variable-popup > .content {
+  display: inline-block;
+  position: fixed;
+  width: 300px;
+  height: 200px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#new-variable-popup input {
+  width: 100%;
+  outline: none;
+  height: 30px;
+  
+}
+
+#new-variable-popup .buttons {
+  display: flex;
+  margin-top: auto;
 }

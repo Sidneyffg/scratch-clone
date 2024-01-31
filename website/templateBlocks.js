@@ -14,7 +14,7 @@ const blockTemplates = [
     canConnectTop: true,
     isDubbleBlock: false,
     run({ inputs }) {
-      console.log(inputs[0].content);
+      console.log("[log]", inputs[0].content);
     },
   },
   {

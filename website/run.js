@@ -186,4 +186,5 @@ class Runner {
   shouldStop;
   // [{ blockListId, broadcastId }]
   broadcastBlockLists;
+  variables = [];
 }
