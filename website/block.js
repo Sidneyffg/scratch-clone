@@ -39,8 +39,13 @@ class Block {
       }
       switch (e.element) {
         case "input":
-          const elem = createElem("input", { type: e.type });
+          const elem = createElem("span", {
+            role: "textbox",
+            contentEditable: true,
+            classList: "input",
+          });
           this.elem.appendChild(elem);
+          elem.contenteditable = true;
           this.inputs.push(new BlockInput(e.type, elem));
           break;
         case "img":

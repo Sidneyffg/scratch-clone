@@ -82,7 +82,7 @@ const blockTemplates = [
     },
   },
   {
-    content: ["Repeat", { element: "input", type: "number" }, "times"],
+    content: ["Repeat", { element: "input", type: "int" }, "times"],
     color: "yellow",
     canConnectBottom: true,
     canConnectTop: true,
