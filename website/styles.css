@@ -73,8 +73,8 @@ main {
   margin-right: 8px;
 }
 
-.block > span.input {
-  display: inline-block;
+.block > span.input,
+.block > select {
   min-width: 30px;
   background-color: white;
   border: 1px black solid;
@@ -94,7 +94,7 @@ main {
 }
 
 #new-variable-popup > .content {
-  display: inline-block;
+  display: block;
   position: fixed;
   width: 300px;
   height: 200px;

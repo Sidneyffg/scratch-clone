@@ -148,6 +148,26 @@ const blockTemplates = [
       goToBlock(idx);
     },
   },
+  {
+    content: [
+      "Set",
+      { element: "input", type: "variable" },
+      "to",
+      { element: "input", type: "string" },
+    ],
+    color: "orange",
+    canConnectBottom: true,
+    canConnectTop: true,
+    isDubbleBlock: false,
+    run({ variableName, inputs }) {
+      if (
+        !variableName ||
+        variableHandler.publicVariables[variableName] === undefined
+      )
+        return;
+      variableHandler.publicVariables[variableName] = inputs[0].content;
+    },
+  },
 ];
 
 const blockIds = {};

@@ -32,6 +32,7 @@ class Block {
   loadContent(content) {
     this.elem.innerHTML = "";
     this.inputs = [];
+    this.variable = null;
     content.forEach((e) => {
       if (typeof e == "string") {
         const elem = createElem("span", { innerHTML: e });
@@ -39,14 +40,28 @@ class Block {
       }
       switch (e.element) {
         case "input":
-          const elem = createElem("span", {
-            role: "textbox",
-            contentEditable: true,
-            classList: "input",
-          });
-          this.elem.appendChild(elem);
-          elem.contenteditable = true;
-          this.inputs.push(new BlockInput(e.type, elem));
+          if (e.type == "variable") {
+            const elem = createElem("select");
+            elem.addEventListener("click", (e) => {
+              if (e.pointerId != 1) {
+                if (elem.value != "New variable") return;
+                variableHandler.openNewVariablePopup(this);
+                return;
+              }
+              this.reloadVariableSelect();
+            });
+            this.variableElem = elem;
+            this.reloadVariableSelect();
+            this.elem.appendChild(elem);
+          } else {
+            const elem = createElem("span", {
+              role: "textbox",
+              contentEditable: true,
+              classList: "input",
+            });
+            this.elem.appendChild(elem);
+            this.inputs.push(new BlockInput(e.type, elem));
+          }
           break;
         case "img":
           //blockHtml += `<img src="${e.src}">`;
@@ -54,5 +69,13 @@ class Block {
       }
     });
   }
+
+  reloadVariableSelect() {
+    const selectedOption = this.variableElem.value;
+    this.variableElem.innerHTML = variableHandler.options;
+    if (variableHandler.publicVariables[selectedOption] !== undefined)
+      this.variableElem.value = selectedOption;
+  }
   inputs;
+  variableElem;
 }

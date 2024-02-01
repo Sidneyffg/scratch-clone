@@ -1,6 +1,7 @@
 class Runner {
   async run() {
     this.compile(blockListHandler.blockLists);
+    variableHandler.resetVariables();
 
     this.shouldStop = false;
     this.initEventLoop();
@@ -76,6 +77,7 @@ class Runner {
         continue;
       blockTemplates[compiledBlock.action].run({
         inputs: compiledBlock.inputs,
+        variableName: compiledBlock.variableName,
         compiledBlockListId,
         compiledBlockList,
         compiledBlockIdx: i,
@@ -149,6 +151,7 @@ class Runner {
         compiledBlockList.push({
           action: block.blockId,
           inputs: this.compileBlockInputs(block.inputs),
+          variableName: block.variableElem?.value,
           data: null,
         });
       });

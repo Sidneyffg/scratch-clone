@@ -18,6 +18,7 @@ function dragElement(elem, blockList) {
   }
 
   function elementDrag(e) {
+    if (e.movementX == 0 && e.movementY == 0) return;
     e.preventDefault();
     if (lastClickedBlock) {
       let selectedBlock = blockList.blocks[lastClickedBlock];

@@ -5,7 +5,7 @@ class BlockInput {
     this.elem = elem;
     this.elem.addEventListener("keydown", (e) => {
       if (e.key.length != 1) return;
-      this.updateContent(this.elem.innerText + e.key, e);
+      this.updateContent(this.elem.innerHTML + e.key, e);
     });
   }
 
