@@ -67,21 +67,36 @@ main {
   cursor: pointer;
   border-radius: 8px;
   align-items: center;
-}
 
-.block > * {
-  margin-right: 8px;
-}
+  & > * {
+    margin-right: 8px;
+  }
 
-.block > span.input,
-.block > select {
-  min-width: 30px;
-  background-color: white;
-  border: 1px black solid;
-  outline: none;
-  border-radius: 8px;
-  color: black;
-  padding-inline: 7px;
+  &.input-block {
+    min-height: 24px;
+    padding: 2px;
+    border-radius: 12px;
+  }
+
+  &.input-block :last-child {
+    margin-right: 0;
+  }
+
+  & > span.input,
+  & > select {
+    min-width: 30px;
+    height: 20px;
+    background-color: white;
+    border: 1px black solid;
+    outline: none;
+    border-radius: 12px;
+    color: black;
+    padding-inline: 7px;
+  }
+
+  &.input-block > span.input {
+    height: 20px;
+  }
 }
 
 #new-variable-popup {

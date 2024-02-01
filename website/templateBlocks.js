@@ -168,6 +168,21 @@ const blockTemplates = [
       variableHandler.publicVariables[variableName] = inputs[0].content;
     },
   },
+  {
+    content: [
+      { element: "input", type: "float" },
+      "+",
+      { element: "input", type: "float" },
+    ],
+    color: "#00ab41",
+    canConnectBottom: false,
+    canConnectTop: false,
+    isDubbleBlock: false,
+    isInputBlock: true,
+    run({ inputs }) {
+      return inputs[0].content + inputs[1].content;
+    },
+  },
 ];
 
 const blockIds = {};

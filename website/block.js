@@ -9,9 +9,13 @@ class Block {
     this.canConnectTop = template.canConnectTop;
     this.blockId = template.blockId;
     this.isDubbleBlock = template.isDubbleBlock;
+    this.isInputBlock = template.isInputBlock;
     if (this.isDubbleBlock) {
       this.dubbleBlock = template.dubbleBlock;
       this.isFirstDubbleBlock = template.isFirstDubbleBlock;
+    }
+    if (this.isInputBlock) {
+      this.elem.classList.add("input-block");
     }
   }
   lastClick = 0;

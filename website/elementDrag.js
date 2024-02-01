@@ -20,7 +20,7 @@ function dragElement(elem, blockList) {
   function elementDrag(e) {
     if (e.movementX == 0 && e.movementY == 0) return;
     e.preventDefault();
-    if (lastClickedBlock) {
+    if (lastClickedBlock != null) {
       let selectedBlock = blockList.blocks[lastClickedBlock];
       if (selectedBlock.isDubbleBlock && !selectedBlock.isFirstDubbleBlock) {
         lastClickedBlock = getConnectedDubbleBlock(blockList, lastClickedBlock);
@@ -30,6 +30,7 @@ function dragElement(elem, blockList) {
         blockList.releaseFromBlockList(lastClickedBlock);
       }
       lastClickedBlock = null;
+      playField.appendChild(elem);
     }
     // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
