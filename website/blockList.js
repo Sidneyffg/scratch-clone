@@ -70,6 +70,10 @@ class BlockList {
     newBlockList.reloadIndentations();
   }
 
+  getAllNestedInputs(){
+    
+  }
+
   delete() {
     this.elem.remove();
   }

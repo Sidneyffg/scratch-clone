@@ -4,9 +4,35 @@ class BlockInput {
     this.content = content;
     this.elem = elem;
     this.elem.addEventListener("keydown", (e) => {
-      if (e.key.length != 1) return;
+      if (typeof this.content == "object") return e.preventDefault();
+      if (e.key.length != 1) {
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key))
+          return;
+        switch (e.key) {
+          case "Backspace":
+            const inner = this.elem.innerHTML;
+            this.updateContent(inner.substring(0, inner.length - 1), e);
+            break;
+          default:
+            e.preventDefault();
+            break;
+        }
+        return;
+      }
       this.updateContent(this.elem.innerHTML + e.key, e);
     });
+  }
+
+  addBlockToInput(block) {
+    let child = this.elem.lastElementChild;
+    while (child) {
+      this.elem.removeChild(child);
+      child = e.lastElementChild;
+    }
+    this.elem.appendChild(block.elem);
+    this.elem.classList.add("input-with-block");
+    this.updateContent(block);
+    console.log(block);
   }
 
   updateContent(newContent, event = null) {
@@ -21,7 +47,7 @@ class BlockInput {
         }
       } else this.content = newContent;
       return;
-    }
+    } else if (typeof newContent == "object") this.content = newContent;
   }
   type = null;
   content;
