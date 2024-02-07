@@ -73,7 +73,14 @@ function dragElement(elem, blockList) {
 
   function handleHover(otherBlockList) {
     if (blockList.blocks[0].isInputBlock) {
-      // handle stuff
+      const inputs = otherBlockList.getAllNestedInputs();
+      for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
+        if (!canSnapToInput(blockList, otherBlockList, input.elem)) continue;
+        input.addBlockToInput(blockList.blocks[0]);
+        blockListHandler.deleteBlockList(blockList);
+        break;
+      }
       return false;
     }
     if (!blockList.blocks[0].canConnectTop) return;
@@ -94,19 +101,30 @@ function dragElement(elem, blockList) {
   }
 }
 const snapDistance = 60;
+const halfSnapDistance = snapDistance / 2;
 function isHoveringOverBlocklist(selected, other) {
   const otherHeight = getTotalHeightOfBlockList(other);
   const otherWidth = getTotalWidthOfBlockList(other);
   return (
     selected.x > other.x - snapDistance &&
-    selected.x < other.x + snapDistance / 2 + otherWidth &&
+    selected.x < other.x + halfSnapDistance + otherWidth &&
     selected.y > other.y - snapDistance &&
-    selected.y < other.y + snapDistance / 2 + otherHeight
+    selected.y < other.y + halfSnapDistance + otherHeight
   );
 }
 
-function canSnapToInput(selected, inputElem) {
-  console.log(inputElem.offsetLeft);
+const inputSnapDistance = 15;
+const stdInputWidth = 30;
+const stdInputHeight = 20;
+function canSnapToInput(selected, other, inputElem) {
+  const x = inputElem.offsetLeft + other.x;
+  const y = inputElem.offsetTop + other.y;
+  return (
+    selected.x > x - inputSnapDistance &&
+    selected.x < x + stdInputWidth &&
+    selected.y > y - inputSnapDistance &&
+    selected.y < y + stdInputHeight
+  );
 }
 
 function getHoveringNum(selected, other) {

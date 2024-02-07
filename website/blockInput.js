@@ -24,15 +24,10 @@ class BlockInput {
   }
 
   addBlockToInput(block) {
-    let child = this.elem.lastElementChild;
-    while (child) {
-      this.elem.removeChild(child);
-      child = e.lastElementChild;
-    }
+    this.elem.innerHTML = "";
     this.elem.appendChild(block.elem);
     this.elem.classList.add("input-with-block");
     this.updateContent(block);
-    console.log(block);
   }
 
   updateContent(newContent, event = null) {
