@@ -61,55 +61,72 @@ function dragElement(elem, blockList) {
       blockListHandler.deleteBlockList(blockList);
       return;
     }
-    if (!blockList.blocks[0].canConnectTop) return;
     for (let i = 0; i < blockListHandler.blockLists.length; i++) {
       const otherBlockList = blockListHandler.blockLists[i];
-      if (blockList == otherBlockList) continue;
+      if (blockList == otherBlockList || otherBlockList.static) continue;
       // pos of where block whill come
-      const hoveringNum = isHoveringOverBlocklist(blockList, otherBlockList);
-      if (hoveringNum === null) continue;
-      if (!otherBlockList.blocks[hoveringNum - 1].canConnectBottom) continue;
-      if (
-        hoveringNum != otherBlockList.blocks.length &&
-        !blockList.blocks.lastElement().canConnectBottom &&
-        !isSecondDubbleBlock(otherBlockList.blocks[hoveringNum])
-      )
-        continue;
-      blockListHandler.mergeBlockLists(otherBlockList, blockList, hoveringNum);
-      return;
+      const isHovering = isHoveringOverBlocklist(blockList, otherBlockList);
+      if (!isHovering) continue;
+      if (handleHover(otherBlockList)) return;
     }
   }
-}
 
-const snapDistanceX = 60;
+  function handleHover(otherBlockList) {
+    if (blockList.blocks[0].isInputBlock) {
+      // handle stuff
+      return false;
+    }
+    if (!blockList.blocks[0].canConnectTop) return;
+    const hoveringNum = getHoveringNum(blockList, otherBlockList);
+    if (
+      hoveringNum === null ||
+      !otherBlockList.blocks[hoveringNum - 1].canConnectBottom
+    )
+      return false;
+    if (
+      hoveringNum != otherBlockList.blocks.length &&
+      !blockList.blocks.lastElement().canConnectBottom &&
+      !isSecondDubbleBlock(otherBlockList.blocks[hoveringNum])
+    )
+      return false;
+    blockListHandler.mergeBlockLists(otherBlockList, blockList, hoveringNum);
+    return true;
+  }
+}
+const snapDistance = 60;
 function isHoveringOverBlocklist(selected, other) {
   const otherHeight = getTotalHeightOfBlockList(other);
-  const otherIndentationWidth = getTotalWidthOfIndentations(other);
-  const firstSnapDistanceY = other.blocks[0].elem.offsetHeight / 2;
-  if (
-    selected.x > other.x - snapDistanceX &&
-    selected.x < other.x + snapDistanceX + otherIndentationWidth &&
-    selected.y > other.y + firstSnapDistanceY &&
-    selected.y < other.y + firstSnapDistanceY + otherHeight
-  ) {
-    let passedHeight = 0;
-    const heightFromTop = selected.y - other.y;
-    for (let i = 0; i < other.blocks.length; i++) {
-      const block = other.blocks[i];
-      const blockHeight = block.elem.offsetHeight;
-      const snapDistanceY = blockHeight / 2;
-      const indentation = block.indentation * block.indentationWidth;
-      passedHeight += snapDistanceY;
-      if (
-        passedHeight <= heightFromTop &&
-        passedHeight + 2 * snapDistanceY >= heightFromTop &&
-        selected.x > other.x + indentation - snapDistanceX &&
-        selected.x < other.x + indentation + snapDistanceX
-      ) {
-        return i + 1;
-      }
-      passedHeight += snapDistanceY;
+  const otherWidth = getTotalWidthOfBlockList(other);
+  return (
+    selected.x > other.x - snapDistance &&
+    selected.x < other.x + snapDistance / 2 + otherWidth &&
+    selected.y > other.y - snapDistance &&
+    selected.y < other.y + snapDistance / 2 + otherHeight
+  );
+}
+
+function canSnapToInput(selected, inputElem) {
+  console.log(inputElem.offsetLeft);
+}
+
+function getHoveringNum(selected, other) {
+  let passedHeight = 0;
+  const heightFromTop = selected.y - other.y;
+  for (let i = 0; i < other.blocks.length; i++) {
+    const block = other.blocks[i];
+    const blockHeight = block.elem.offsetHeight;
+    const snapDistanceY = blockHeight / 2;
+    const indentation = block.indentation * block.indentationWidth;
+    passedHeight += snapDistanceY;
+    if (
+      passedHeight <= heightFromTop &&
+      passedHeight + 2 * snapDistanceY >= heightFromTop &&
+      selected.x > other.x + indentation - snapDistance &&
+      selected.x < other.x + indentation + snapDistance
+    ) {
+      return i + 1;
     }
+    passedHeight += snapDistanceY;
   }
   return null;
 }
@@ -120,6 +137,16 @@ function getTotalHeightOfBlockList(blockList) {
     height += block.elem.offsetHeight;
   });
   return height;
+}
+
+function getTotalWidthOfBlockList(blockList) {
+  let hightestWidth = 0;
+  blockList.blocks.forEach((block) => {
+    const totalBlockWidth =
+      block.indentation * block.indentationWidth + block.elem.offsetWidth;
+    hightestWidth = Math.max(hightestWidth, totalBlockWidth);
+  });
+  return hightestWidth;
 }
 
 function getTotalWidthOfIndentations(blockList) {

@@ -33,6 +33,19 @@ class Block {
     this.indentation = indentation;
   }
 
+  getAllNestedInputs() {
+    return this.#getNestedInputs(this.inputs);
+  }
+
+  #getNestedInputs(inputs) {
+    const allInputs = [];
+    inputs.forEach((e) => {
+      if (typeof e.content == "string") return allInputs.push(e);
+      allInputs.push(...this.#getNestedInputs(e.content.inputs));
+    });
+    return allInputs;
+  }
+
   loadContent(content) {
     this.elem.innerHTML = "";
     this.inputs = [];

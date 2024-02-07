@@ -70,8 +70,12 @@ class BlockList {
     newBlockList.reloadIndentations();
   }
 
-  getAllNestedInputs(){
-    
+  getAllNestedInputs() {
+    const inputs = [];
+    this.blocks.forEach((e) => {
+      inputs.push(...e.getAllNestedInputs());
+    });
+    return inputs;
   }
 
   delete() {
