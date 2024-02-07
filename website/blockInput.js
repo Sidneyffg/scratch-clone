@@ -1,5 +1,6 @@
 class BlockInput {
-  constructor(type, elem, content = "") {
+  constructor(parentBlock, type, elem, content = "") {
+    this.parentBlock = parentBlock;
     this.type = type;
     this.content = content;
     this.elem = elem;
@@ -27,6 +28,7 @@ class BlockInput {
     this.elem.innerHTML = "";
     this.elem.appendChild(block.elem);
     this.elem.classList.add("input-with-block");
+    block.parentBlock = this.parentBlock;
     this.updateContent(block);
   }
 

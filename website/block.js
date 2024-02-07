@@ -49,7 +49,7 @@ class Block {
   loadContent(content) {
     this.elem.innerHTML = "";
     this.inputs = [];
-    this.variable = null;
+    this.variableElem = null;
     content.forEach((e) => {
       if (typeof e == "string") {
         const elem = createElem("span", { innerHTML: e });
@@ -77,7 +77,7 @@ class Block {
               classList: "input",
             });
             this.elem.appendChild(elem);
-            this.inputs.push(new BlockInput(e.type, elem));
+            this.inputs.push(new BlockInput(this, e.type, elem));
           }
           break;
         case "img":
@@ -93,6 +93,7 @@ class Block {
     if (variableHandler.publicVariables[selectedOption] !== undefined)
       this.variableElem.value = selectedOption;
   }
+  parentBlock = null;
   inputs;
   variableElem;
 }
