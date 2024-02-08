@@ -48,6 +48,19 @@ class Block {
     return allInputs;
   }
 
+  getAllNestedBlocks() {
+    return this.#getNestedBlocks(this.inputs);
+  }
+
+  #getNestedBlocks(inputs) {
+    const allBlocks = [];
+    inputs.forEach((e) => {
+      if (typeof e.content == "string") return;
+      allBlocks.push(e.content, ...this.#getNestedBlocks(e.content.inputs));
+    });
+    return allBlocks;
+  }
+
   bubbleClick(e) {
     if (!this.parentBlock) {
       this.parentBlockList.startDrag(e);

@@ -180,9 +180,15 @@ function findLastClickedBlock(blockList) {
   let idx = 0;
   let lastClick = 0;
   blockList.blocks.forEach((block, i) => {
-    if (block.lastClick <= lastClick) return;
-    lastClick = block.lastClick;
-    idx = i;
+    if (block.lastClick > lastClick) {
+      lastClick = block.lastClick;
+      idx = i;
+    }
+    block.getAllNestedBlocks().forEach((nestedBlock) => {
+      if (nestedBlock.lastClick <= lastClick) return;
+      lastClick = nestedBlock.lastClick;
+      idx = i;
+    });
   });
   return idx;
 }
