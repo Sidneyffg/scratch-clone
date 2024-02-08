@@ -1,10 +1,10 @@
-function dragElement(elem, blockList) {
+function dragElement(elem, blockList, listener) {
+  listener.drag = dragMouseDown;
   let pos1 = 0,
     pos2 = 0,
     pos3 = 0,
     pos4 = 0;
 
-  elem.onmousedown = dragMouseDown;
   let lastClickedBlock = null;
 
   function dragMouseDown(e) {

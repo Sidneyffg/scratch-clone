@@ -7,6 +7,7 @@ class BlockList {
 
   addBlock(template) {
     const newBlock = new Block(template);
+    newBlock.parentBlockList = this;
     this.elem.appendChild(newBlock.elem);
     this.blocks.push(newBlock);
   }
@@ -99,10 +100,15 @@ class BlockList {
   reloadIndentations() {
     let indentation = 0;
     this.blocks.forEach((block) => {
+      block.parentBlockList = this;
       if (isSecondDubbleBlock(block)) indentation--;
       block.updateIndentation(indentation);
       if (block.isFirstDubbleBlock) indentation++;
     });
+  }
+
+  startDrag(e) {
+    this.dragElement.drag(e);
   }
 
   createElem(elemToAppend) {
@@ -114,8 +120,8 @@ class BlockList {
     elem.style.top = this.y + "px";
     elem.style.left = this.x + "px";
     elemToAppend.appendChild(elem);
-
-    dragElement(elem, this);
+    this.dragElement = {};
+    dragElement(elem, this, this.dragElement);
     this.elem = elem;
   }
   blocks = [];

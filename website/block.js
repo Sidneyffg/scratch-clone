@@ -2,8 +2,10 @@ class Block {
   constructor(template) {
     this.createHtmlElem(template.color);
     this.loadContent(template.content);
-    this.elem.addEventListener("mousedown", () => {
+    this.elem.addEventListener("mousedown", (e) => {
+      e.stopPropagation();
       this.lastClick = Date.now();
+      this.bubbleClick(e);
     });
     this.canConnectBottom = template.canConnectBottom;
     this.canConnectTop = template.canConnectTop;
@@ -44,6 +46,14 @@ class Block {
       allInputs.push(...this.#getNestedInputs(e.content.inputs));
     });
     return allInputs;
+  }
+
+  bubbleClick(e) {
+    if (!this.parentBlock) {
+      this.parentBlockList.startDrag(e);
+      return;
+    }
+    this.parentBlock.bubbleClick(e);
   }
 
   loadContent(content) {
@@ -94,6 +104,7 @@ class Block {
       this.variableElem.value = selectedOption;
   }
   parentBlock = null;
+  parentBlockList = null;
   inputs;
   variableElem;
 }
