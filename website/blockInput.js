@@ -1,4 +1,10 @@
 class BlockInput {
+  /**
+   * @param {Block} parentBlock
+   * @param {blockInputType} type
+   * @param {HTMLElement} elem
+   * @param {blockInputContent} [content]
+   */
   constructor(parentBlock, type, elem, content = "") {
     this.parentBlock = parentBlock;
     this.type = type;
@@ -24,6 +30,9 @@ class BlockInput {
     });
   }
 
+  /**
+   * @param {Block} block
+   */
   addBlockToInput(block) {
     this.elem.innerHTML = "";
     this.elem.appendChild(block.elem);
@@ -32,6 +41,10 @@ class BlockInput {
     this.updateContent(block);
   }
 
+  /**
+   * @param {blockInputContent} newContent
+   * @param {Event} [event]
+   */
   updateContent(newContent, event = null) {
     if (typeof newContent == "string") {
       for (let i = 0; i < newContent.length; i++) {

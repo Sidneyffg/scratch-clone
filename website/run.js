@@ -28,7 +28,7 @@ class Runner {
     this.startBlockListIds.forEach((e) => {
       const template = this.templateCompiledBlockLists[e];
       const id = this.createCompiledBlockList(template);
-      this.addEventLoopItem(id, 0);
+      this.addEventLoopItem(id);
     });
     this.swapEventLoops(true);
     this.startTimestamp = Date.now();
@@ -37,6 +37,11 @@ class Runner {
 
   targetFramerate = 60;
   frameTime = Math.round(1000 / this.targetFramerate);
+
+  /**
+   * @param {boolean} [skipWait]
+   * @returns {Promise<void>}
+   */
   swapEventLoops(skipWait = false) {
     return new Promise((resolve) => {
       if (!skipWait) console.log("Finished event loop");
@@ -65,6 +70,10 @@ class Runner {
     }
   }
 
+  /**
+   *
+   * @param {eventLoopItem} eventLoopItem
+   */
   runEvent({ compiledBlockListId, startLine }) {
     console.log(
       `Running compiled blockList with id ${compiledBlockListId} from block ${startLine}`
@@ -109,7 +118,6 @@ class Runner {
   }
 
   /**
-   *
    * @param {compiledBlockListTemplate} template
    * @returns {compiledBlockListId}
    */
@@ -124,18 +132,22 @@ class Runner {
   }
 
   /**
-   *
    * @param {compiledBlockListId} id
    * @param {number} startLine
-   * @param {Object} options
+   * @param {object} options
+   * @param {number} options.startLine
    * @param {boolean} options.thisFrame
    */
-  addEventLoopItem(compiledBlockListId, startLine, options = {}) {
-    const event = { compiledBlockListId, startLine };
+  addEventLoopItem(compiledBlockListId, options = {}) {
+    if (!options.startLine) options.startLine = 0;
+    const event = { compiledBlockListId, startLine: options.startLine };
     if (options.thisFrame) this.eventLoop.push(event);
     else this.nextEventLoop.push(event);
   }
 
+  /**
+   * @param {BlockList[]} blockLists
+   */
   compile(blockLists) {
     const timeStamp = Date.now();
     this.templateCompiledBlockLists = [];
@@ -173,6 +185,10 @@ class Runner {
     console.log(this.templateCompiledBlockLists);
   }
 
+  /**
+   * @param {BlockInput[]} inputs
+   * @returns
+   */
   compileBlockInputs(inputs) {
     const newInputs = [];
     inputs.forEach(({ type, content }) => {

@@ -23,6 +23,9 @@ class VariableHandler {
     this.setOptions();
   }
 
+  /**
+   * @param {string} name
+   */
   addVariable(name) {
     this.publicVariables[name] = "0";
     this.setOptions();
@@ -40,6 +43,9 @@ class VariableHandler {
     this.popupOpenedBy = null;
   }
 
+  /**
+   * @param {Block} block
+   */
   openNewVariablePopup(block) {
     this.popupElem.style.display = "block";
     this.popupOpenedBy = block;

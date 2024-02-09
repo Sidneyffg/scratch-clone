@@ -1,5 +1,14 @@
-function dragElement(elem, blockList, listener) {
+/**
+ * @param {BlockList} blockList
+ * @param {object} listener
+ */
+function dragElement(blockList, listener) {
   listener.drag = dragMouseDown;
+  listener.stopDrag = () => {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  };
+  const elem = blockList.elem;
   let pos1 = 0,
     pos2 = 0,
     pos3 = 0,
@@ -7,6 +16,9 @@ function dragElement(elem, blockList, listener) {
 
   let lastClickedBlock = null;
 
+  /**
+   * @param {Event} e
+   */
   function dragMouseDown(e) {
     lastClickedBlock = findLastClickedBlock(blockList);
     pos3 = e.clientX;
@@ -17,20 +29,27 @@ function dragElement(elem, blockList, listener) {
     blockList.deStatic();
   }
 
+  /**
+   * @param {Event} e
+   */
   function elementDrag(e) {
     if (e.movementX == 0 && e.movementY == 0) return;
     e.preventDefault();
     if (lastClickedBlock != null) {
-      let selectedBlock = blockList.blocks[lastClickedBlock];
-      if (selectedBlock.isDubbleBlock && !selectedBlock.isFirstDubbleBlock) {
+      if (
+        lastClickedBlock.isDubbleBlock &&
+        !lastClickedBlock.isFirstDubbleBlock
+      ) {
         lastClickedBlock = getConnectedDubbleBlock(blockList, lastClickedBlock);
-        selectedBlock = blockList.blocks[lastClickedBlock];
+        lastClickedBlock = blockList.blocks[lastClickedBlock];
       }
-      if (lastClickedBlock > 0) {
-        blockList.releaseFromBlockList(lastClickedBlock);
+      if (lastClickedBlock != blockList.blocks[0]) {
+        if (lastClickedBlock.parentBlock != null)
+          lastClickedBlock.releaseInputBlock();
+        else blockList.releaseFromBlockList(lastClickedBlock);
       }
       lastClickedBlock = null;
-      playField.appendChild(elem);
+      playField.appendChild(blockList.elem); //show in front of other blockLists
     }
     // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
@@ -71,6 +90,10 @@ function dragElement(elem, blockList, listener) {
     }
   }
 
+  /**
+   * @param {BlockList} otherBlockList
+   * @returns {boolean} snapped to block
+   */
   function handleHover(otherBlockList) {
     if (blockList.blocks[0].isInputBlock) {
       const inputs = otherBlockList.getAllNestedInputs();
@@ -79,7 +102,7 @@ function dragElement(elem, blockList, listener) {
         if (!canSnapToInput(blockList, otherBlockList, input.elem)) continue;
         input.addBlockToInput(blockList.blocks[0]);
         blockListHandler.deleteBlockList(blockList);
-        break;
+        return true;
       }
       return false;
     }
@@ -102,6 +125,11 @@ function dragElement(elem, blockList, listener) {
 }
 const snapDistance = 60;
 const halfSnapDistance = snapDistance / 2;
+/**
+ * @param {BlockList} selected 
+ * @param {BlockList} other 
+ * @returns {boolean}
+ */
 function isHoveringOverBlocklist(selected, other) {
   const otherHeight = getTotalHeightOfBlockList(other);
   const otherWidth = getTotalWidthOfBlockList(other);
@@ -116,6 +144,12 @@ function isHoveringOverBlocklist(selected, other) {
 const inputSnapDistance = 15;
 const stdInputWidth = 30;
 const stdInputHeight = 20;
+/**
+ * @param {BlockList} selected 
+ * @param {BlockList} other 
+ * @param {HTMLElement} inputElem
+ * @returns {boolean}
+ */
 function canSnapToInput(selected, other, inputElem) {
   const x = inputElem.offsetLeft + other.x;
   const y = inputElem.offsetTop + other.y;
@@ -127,6 +161,11 @@ function canSnapToInput(selected, other, inputElem) {
   );
 }
 
+/**
+ * @param {BlockList} selected 
+ * @param {BlockList} other 
+ * @returns {number|null}
+ */
 function getHoveringNum(selected, other) {
   let passedHeight = 0;
   const heightFromTop = selected.y - other.y;
@@ -149,6 +188,10 @@ function getHoveringNum(selected, other) {
   return null;
 }
 
+/**
+ * @param {BlockList} blockList 
+ * @returns {number}
+ */
 function getTotalHeightOfBlockList(blockList) {
   let height = 0;
   blockList.blocks.forEach((block) => {
@@ -157,6 +200,10 @@ function getTotalHeightOfBlockList(blockList) {
   return height;
 }
 
+/**
+ * @param {BlockList} blockList 
+ * @returns {number}
+ */
 function getTotalWidthOfBlockList(blockList) {
   let hightestWidth = 0;
   blockList.blocks.forEach((block) => {
@@ -167,6 +214,10 @@ function getTotalWidthOfBlockList(blockList) {
   return hightestWidth;
 }
 
+/**
+ * @param {BlockList} blockList 
+ * @returns {number}
+ */
 function getTotalWidthOfIndentations(blockList) {
   let hightestWidth = 0;
   blockList.blocks.forEach((block) => {
@@ -176,38 +227,48 @@ function getTotalWidthOfIndentations(blockList) {
   return hightestWidth;
 }
 
+/**
+ * @param {BlockList} blockList 
+ * @returns {Block}
+ */
 function findLastClickedBlock(blockList) {
-  let idx = 0;
+  let lastBlock = null;
   let lastClick = 0;
   blockList.blocks.forEach((block, i) => {
     if (block.lastClick > lastClick) {
       lastClick = block.lastClick;
-      idx = i;
+      lastBlock = block;
     }
     block.getAllNestedBlocks().forEach((nestedBlock) => {
       if (nestedBlock.lastClick <= lastClick) return;
       lastClick = nestedBlock.lastClick;
-      idx = i;
+      lastBlock = nestedBlock;
     });
   });
-  return idx;
+  return lastBlock;
 }
 
-function getConnectedDubbleBlock(blockList, blockNum) {
-  const block = blockList.blocks[blockNum];
+
+/**
+ * @param {BlockList} blockList 
+ * @param {Block} block 
+ * @returns {Block}
+ */
+function getConnectedDubbleBlock(blockList, block) {
   const dubbleBlockId = blockIds[block.dubbleBlock];
+  const blockNum = blockList.blocks.indexOf(block);
   let depth = 0;
   if (block.isFirstDubbleBlock) {
     for (let i = blockNum + 1; i < blockList.blocks.length; i++) {
       if (blockList.blocks[i].blockId == dubbleBlockId) {
-        if (depth == 0) return i;
+        if (depth == 0) return blockList.blocks[i];
         depth--;
       } else if (blockList.blocks[i].blockId == block.blockId) depth++;
     }
   } else {
     for (let i = blockNum - 1; i >= 0; i--) {
       if (blockList.blocks[i].blockId == dubbleBlockId) {
-        if (depth == 0) return i;
+        if (depth == 0) return blockList.blocks[i];
         depth--;
       } else if (blockList.blocks[i].blockId == block.blockId) depth++;
     }
@@ -215,6 +276,13 @@ function getConnectedDubbleBlock(blockList, blockNum) {
   console.log("Failed to find conneced dubble block...");
 }
 
+
+/**
+ * 
+ * @param {compiledBlockList} compiledBlockList 
+ * @param {number} blockNum 
+ * @returns {number}
+ */
 function getCompiledConnectedDubbleBlock(compiledBlockList, blockNum) {
   const blockTemplate = blockTemplates[compiledBlockList[blockNum].action];
   const dubbleBlockId = blockIds[blockTemplate.dubbleBlock];

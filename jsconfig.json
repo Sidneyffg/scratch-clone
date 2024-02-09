@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+      "paths": {
+          "*": ["./types/global.d.ts"]
+      }
+  },
+  "include": [
+    "website/*"
+  ]
+}

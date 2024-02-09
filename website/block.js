@@ -1,4 +1,7 @@
 class Block {
+  /**
+   * @param {blockTemplate} template
+   */
   constructor(template) {
     this.createHtmlElem(template.color);
     this.loadContent(template.content);
@@ -21,6 +24,10 @@ class Block {
     }
   }
   lastClick = 0;
+
+  /**
+   * @param {string} color
+   */
   createHtmlElem(color) {
     const elem = document.createElement("div");
     elem.classList.add("block");
@@ -30,15 +37,26 @@ class Block {
 
   indentation = 0;
   indentationWidth = 20;
+
+  /**
+   * @param {number} indentation
+   */
   updateIndentation(indentation) {
     this.elem.style.marginLeft = indentation * this.indentationWidth + "px";
     this.indentation = indentation;
   }
 
+  /**
+   * @returns {BlockInput[]}
+   */
   getAllNestedInputs() {
     return this.#getNestedInputs(this.inputs);
   }
 
+  /**
+   * @param {BlockInput[]} inputs
+   * @returns {BlockInput[]}
+   */
   #getNestedInputs(inputs) {
     const allInputs = [];
     inputs.forEach((e) => {
@@ -48,10 +66,17 @@ class Block {
     return allInputs;
   }
 
+  /**
+   * @returns {Block[]}
+   */
   getAllNestedBlocks() {
     return this.#getNestedBlocks(this.inputs);
   }
 
+  /**
+   * @param {BlockInput[]} inputs 
+   * @returns {Block[]}
+   */
   #getNestedBlocks(inputs) {
     const allBlocks = [];
     inputs.forEach((e) => {
@@ -61,6 +86,9 @@ class Block {
     return allBlocks;
   }
 
+  /**
+   * @param {Event} e 
+   */
   bubbleClick(e) {
     if (!this.parentBlock) {
       this.parentBlockList.startDrag(e);
@@ -69,6 +97,23 @@ class Block {
     this.parentBlock.bubbleClick(e);
   }
 
+  releaseInputBlock() {
+    const y = this.parentBlockList.elem.style.top;
+    const x = this.parentBlockList.elem.elem.style.left;
+    const position = { x, y };
+    const newBlockList = blockListHandler.addBlockList({ position });
+    this.parentBlock.inputs.find((e) => e.content == this).updateContent("");
+    this.parentBlock = null;
+    newBlockList.elem.appendChild(this.elem);
+    newBlockList.blocks.push(this);
+    this.parentBlockList.stopDrag();
+    this.parentBlockList = newBlockList;
+    this.parentBlockList.drag();
+  }
+
+  /**
+   * @param {blockContent} content 
+   */
   loadContent(content) {
     this.elem.innerHTML = "";
     this.inputs = [];

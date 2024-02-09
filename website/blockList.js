@@ -1,10 +1,20 @@
 class BlockList {
-  constructor(elemToAppend = null, staticBlock = false) {
-    this.static = staticBlock;
-    if (!elemToAppend) elemToAppend = playField;
-    this.createElem(elemToAppend);
+  /**
+   * @param {object} options
+   * @param {HTMLElement} [options.elemToAppend]
+   * @param {boolean} [options.staticBlock]
+   * @param {HTMLElement} [options.elemToAppend]
+   * @param {{x,y}} [options.position]
+   */
+  constructor(options = {}) {
+    this.static = options.staticBlock || false;
+    if (!options.elemToAppend) options.elemToAppend = playField;
+    this.createElem(options.elemToAppend);
   }
 
+  /**
+   * @param {blockTemplate} template
+   */
   addBlock(template) {
     const newBlock = new Block(template);
     newBlock.parentBlockList = this;
@@ -12,6 +22,10 @@ class BlockList {
     this.blocks.push(newBlock);
   }
 
+  /**
+   * @param {number} pos
+   * @param {BlockList} blockList
+   */
   mergeWithBlockList(pos, blockList) {
     if (pos == this.blocks.length) {
       blockList.blocks.forEach((block) => {
@@ -29,7 +43,10 @@ class BlockList {
     this.reloadIndentations();
   }
 
-  releaseFromBlockList(startPos) {
+  /**
+   * @param {Block} block
+   */
+  releaseFromBlockList(block) {
     const newBlockList = blockListHandler.addBlockList();
     const top = this.elem.style.top;
     const left = this.elem.style.left;
@@ -38,6 +55,7 @@ class BlockList {
     newBlockList.x = parseInt(left.slice(0, left.length - 2));
     newBlockList.y = parseInt(top.slice(0, top.length - 2));
     let missingBlockHeight = 0;
+    const startPos = this.blocks.indexOf(block);
     for (let i = 0; i < startPos; i++) {
       missingBlockHeight += this.blocks[0].elem.offsetHeight;
       newBlockList.elem.appendChild(this.blocks[0].elem);
@@ -71,6 +89,9 @@ class BlockList {
     newBlockList.reloadIndentations();
   }
 
+  /**
+   * @returns {BlockInput[]}
+   */
   getAllNestedInputs() {
     const inputs = [];
     this.blocks.forEach((e) => {
@@ -81,6 +102,20 @@ class BlockList {
 
   delete() {
     this.elem.remove();
+  }
+
+  /**
+   * @param {{x,y}} position
+   */
+  setPosition({ x, y }) {
+    if (typeof x == "string") {
+      x = parseInt(x.substring(0, x.length - 2));
+      y = parseInt(x.substring(0, y.length - 2));
+    }
+    this.elem.left = x + "px";
+    this.elem.top = y + "px";
+    this.x = x;
+    this.y = y;
   }
 
   deStatic() {
@@ -107,10 +142,20 @@ class BlockList {
     });
   }
 
-  startDrag(e) {
-    this.dragElement.drag(e);
+  /**
+   * @param {Event} event
+   */
+  startDrag(event) {
+    this.dragElement.drag(event);
   }
 
+  stopDrag() {
+    this.dragElement.stopDrag();
+  }
+
+  /**
+   * @param {HTMLElement} elemToAppend
+   */
   createElem(elemToAppend) {
     const elem = document.createElement("div");
     this.id = Math.floor(Math.random() * 60466176).toString(36);
@@ -120,9 +165,9 @@ class BlockList {
     elem.style.top = this.y + "px";
     elem.style.left = this.x + "px";
     elemToAppend.appendChild(elem);
-    this.dragElement = {};
-    dragElement(elem, this, this.dragElement);
     this.elem = elem;
+    this.dragElement = {};
+    dragElement(this, this.dragElement);
   }
   blocks = [];
   x = 0;

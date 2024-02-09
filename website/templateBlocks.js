@@ -1,3 +1,6 @@
+/**
+ * @type {blockTemplate[]}
+ */
 const blockTemplates = [
   {
     content: ["Start"],
@@ -37,7 +40,7 @@ const blockTemplates = [
         const id = createCompiledBlockList(
           templateCompiledBlockLists[e.blockListId]
         );
-        addEventLoopItem(id, 0);
+        addEventLoopItem(id);
       });
     },
   },
@@ -78,7 +81,7 @@ const blockTemplates = [
         compiledBlockList,
         compiledBlockIdx
       );
-      addEventLoopItem(compiledBlockListId, connectedBlock);
+      addEventLoopItem(compiledBlockListId, {startLine: connectedBlock});
     },
   },
   {
@@ -120,11 +123,11 @@ const blockTemplates = [
               compiledBlockIdx
             ) + 1;
           if (idx >= compiledBlockList.length) break;
-          addEventLoopItem(compiledBlockListId, idx);
+          addEventLoopItem(compiledBlockListId, {startLine:idx});
           compiledBlockData.reset();
           break;
         case "loop":
-          addEventLoopItem(compiledBlockListId, compiledBlockIdx + 1);
+          addEventLoopItem(compiledBlockListId, {startLine:compiledBlockIdx + 1});
           compiledBlockData.set(data - 1);
           break;
       }

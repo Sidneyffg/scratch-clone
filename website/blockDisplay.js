@@ -15,8 +15,15 @@ class BlockDisplay {
     });
   }
 
+  /**
+   * @param {HTMLElement} div
+   * @param {blockTemplate} blockTemplate
+   */
   fillDisplayDiv(div, blockTemplate) {
-    const blockList = blockListHandler.addBlockList(div, true);
+    const blockList = blockListHandler.addBlockList({
+      elemToAppend: div,
+      staticBlock: true,
+    });
     blockList.addBlock(blockTemplate);
     if (blockTemplate.isDubbleBlock) {
       const dubbleBlockTemplate = blockTemplates.find(

@@ -1,3 +1,8 @@
+/**
+ * @param {string} type
+ * @param {object} [data]
+ * @returns {HTMLElement}
+ */
 function createElem(type, data = null) {
   const elem = document.createElement(type);
   if (!data) return elem;
@@ -7,6 +12,10 @@ function createElem(type, data = null) {
   return elem;
 }
 
+/**
+ * @param {Block} block
+ * @returns {boolean}
+ */
 function isSecondDubbleBlock(block) {
   return block.isDubbleBlock && !block.isFirstDubbleBlock;
 }
