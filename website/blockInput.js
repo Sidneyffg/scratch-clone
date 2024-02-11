@@ -1,12 +1,12 @@
 class BlockInput {
   /**
-   * @param {Block} parentBlock
+   * @param {Block} parent
    * @param {blockInputType} type
    * @param {HTMLElement} elem
    * @param {blockInputContent} [content]
    */
-  constructor(parentBlock, type, elem, content = "") {
-    this.parentBlock = parentBlock;
+  constructor(parent, type, elem, content = "") {
+    this.parent = parent;
     this.type = type;
     this.content = content;
     this.elem = elem;
@@ -37,8 +37,24 @@ class BlockInput {
     this.elem.innerHTML = "";
     this.elem.appendChild(block.elem);
     this.elem.classList.add("input-with-block");
-    block.parentBlock = this.parentBlock;
+    block.parent = this.parent;
     this.updateContent(block);
+  }
+
+  /**
+   * @param {BlockList} blockList
+   * @returns {boolean}
+   */
+  canSnap(blockList) {
+    const parentBlockList = this.parent.parentBlockList;
+    const x = this.elem.offsetLeft + parentBlockList.x;
+    const y = this.elem.offsetTop + parentBlockList.y;
+    return (
+      blockList.x > x - this.snapDistance &&
+      blockList.x < x + this.stdWidth &&
+      blockList.y > y - this.snapDistance &&
+      blockList.y < y + this.stdHeight
+    );
   }
 
   /**
@@ -59,6 +75,9 @@ class BlockInput {
       return;
     } else if (typeof newContent == "object") this.content = newContent;
   }
+  snapDistance = 15;
+  stdWidth = 30;
+  stdHeight = 20;
   type = null;
   content;
 }

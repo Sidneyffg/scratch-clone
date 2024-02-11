@@ -1,9 +1,9 @@
 class BlockListHandler {
   /**
    * @param {Object} options
-   * @param {boolean} options.elemToAppend
-   * @param {boolean} options.staticBlock
-   * @param {{x,y}} options.position
+   * @param {boolean} [options.elemToAppend]
+   * @param {boolean} [options.staticBlock]
+   * @param {{x,y}} [options.position]
    * @returns
    */
   addBlockList(options = {}) {
@@ -32,5 +32,8 @@ class BlockListHandler {
     this.blockLists.splice(this.blockLists.indexOf(blockList), 1);
   }
 
+  /**
+   * @type {BlockList[]}
+   */
   blockLists = [];
 }

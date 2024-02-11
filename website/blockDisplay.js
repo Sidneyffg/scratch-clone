@@ -32,4 +32,5 @@ class BlockDisplay {
       blockList.addBlock(dubbleBlockTemplate);
     }
   }
+  deletionBuffer = 20;
 }

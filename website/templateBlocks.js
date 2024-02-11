@@ -76,12 +76,13 @@ const blockTemplates = [
       compiledBlockList,
       compiledBlockIdx,
       addEventLoopItem,
+      getCompiledConnectedDubbleBlock,
     }) {
       const connectedBlock = getCompiledConnectedDubbleBlock(
         compiledBlockList,
         compiledBlockIdx
       );
-      addEventLoopItem(compiledBlockListId, {startLine: connectedBlock});
+      addEventLoopItem(compiledBlockListId, { startLine: connectedBlock });
     },
   },
   {
@@ -101,6 +102,7 @@ const blockTemplates = [
       compiledBlockData,
       addEventLoopItem,
       stopEvent,
+      getCompiledConnectedDubbleBlock,
     }) {
       let action;
       let data = compiledBlockData.get();
@@ -123,11 +125,13 @@ const blockTemplates = [
               compiledBlockIdx
             ) + 1;
           if (idx >= compiledBlockList.length) break;
-          addEventLoopItem(compiledBlockListId, {startLine:idx});
+          addEventLoopItem(compiledBlockListId, { startLine: idx });
           compiledBlockData.reset();
           break;
         case "loop":
-          addEventLoopItem(compiledBlockListId, {startLine:compiledBlockIdx + 1});
+          addEventLoopItem(compiledBlockListId, {
+            startLine: compiledBlockIdx + 1,
+          });
           compiledBlockData.set(data - 1);
           break;
       }
@@ -143,7 +147,12 @@ const blockTemplates = [
     dubbleBlock: "repeat",
     isFirstDubbleBlock: false,
     name: "closeRepeat",
-    run({ compiledBlockList, compiledBlockIdx, goToBlock }) {
+    run({
+      compiledBlockList,
+      compiledBlockIdx,
+      goToBlock,
+      getCompiledConnectedDubbleBlock,
+    }) {
       const idx = getCompiledConnectedDubbleBlock(
         compiledBlockList,
         compiledBlockIdx

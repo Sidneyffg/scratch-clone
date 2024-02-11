@@ -10,6 +10,8 @@ class BlockList {
     this.static = options.staticBlock || false;
     if (!options.elemToAppend) options.elemToAppend = playField;
     this.createElem(options.elemToAppend);
+    if (options.position) this.setPosition(options.position);
+    this.dragger = new Dragger(this);
   }
 
   /**
@@ -17,7 +19,7 @@ class BlockList {
    */
   addBlock(template) {
     const newBlock = new Block(template);
-    newBlock.parentBlockList = this;
+    newBlock.parent = this;
     this.elem.appendChild(newBlock.elem);
     this.blocks.push(newBlock);
   }
@@ -47,13 +49,9 @@ class BlockList {
    * @param {Block} block
    */
   releaseFromBlockList(block) {
-    const newBlockList = blockListHandler.addBlockList();
-    const top = this.elem.style.top;
-    const left = this.elem.style.left;
-    newBlockList.elem.style.top = top;
-    newBlockList.elem.style.left = left;
-    newBlockList.x = parseInt(left.slice(0, left.length - 2));
-    newBlockList.y = parseInt(top.slice(0, top.length - 2));
+    const newBlockList = blockListHandler.addBlockList({
+      position: { x: this.x, y: this.y },
+    });
     let missingBlockHeight = 0;
     const startPos = this.blocks.indexOf(block);
     for (let i = 0; i < startPos; i++) {
@@ -77,14 +75,10 @@ class BlockList {
       }
       if (block.isFirstDubbleBlock) depth++;
     }
-    const topStr = this.elem.style.top;
-    let currentTop = parseInt(topStr.slice(0, topStr.length - 2));
-    currentTop = currentTop ? currentTop : 0;
-    this.elem.style.top = currentTop + missingBlockHeight + "px";
-    this.elem.style.left =
-      this.x +
-      this.blocks[0].indentation * this.blocks[0].indentationWidth +
-      "px";
+    this.move({
+      x: this.blocks[0].indentation * this.blocks[0].indentationWidth,
+      y: missingBlockHeight,
+    });
     this.reloadIndentations();
     newBlockList.reloadIndentations();
   }
@@ -112,10 +106,17 @@ class BlockList {
       x = parseInt(x.substring(0, x.length - 2));
       y = parseInt(x.substring(0, y.length - 2));
     }
-    this.elem.left = x + "px";
-    this.elem.top = y + "px";
+    this.elem.style.left = x + "px";
+    this.elem.style.top = y + "px";
     this.x = x;
     this.y = y;
+  }
+
+  /**
+   * @param {{x,y}} relativePosition
+   */
+  move({ x, y }) {
+    this.setPosition({ x: this.x + x, y: this.y + y });
   }
 
   deStatic() {
@@ -123,8 +124,7 @@ class BlockList {
     const parentDiv = this.elem.parentElement;
     this.elem.classList.remove("static");
     playField.appendChild(this.elem);
-    this.elem.style.left = pos.left + "px";
-    this.elem.style.top = pos.top + "px";
+    this.setPosition({ x: pos.left, y: pos.top });
     blockDisplay.fillDisplayDiv(
       parentDiv,
       blockTemplates[this.blocks[0].blockId]
@@ -135,22 +135,11 @@ class BlockList {
   reloadIndentations() {
     let indentation = 0;
     this.blocks.forEach((block) => {
-      block.parentBlockList = this;
+      block.parent = this;
       if (isSecondDubbleBlock(block)) indentation--;
       block.updateIndentation(indentation);
       if (block.isFirstDubbleBlock) indentation++;
     });
-  }
-
-  /**
-   * @param {Event} event
-   */
-  startDrag(event) {
-    this.dragElement.drag(event);
-  }
-
-  stopDrag() {
-    this.dragElement.stopDrag();
   }
 
   /**
@@ -166,9 +155,106 @@ class BlockList {
     elem.style.left = this.x + "px";
     elemToAppend.appendChild(elem);
     this.elem = elem;
-    this.dragElement = {};
-    dragElement(this, this.dragElement);
   }
+
+  /**
+   * @param {Block} block
+   * @returns {Block}
+   */
+  getConnectedDubbleBlock(block) {
+    const dubbleBlockId = blockIds[block.dubbleBlock];
+    const blockNum = this.blocks.indexOf(block);
+    let depth = 0;
+    if (block.isFirstDubbleBlock) {
+      for (let i = blockNum + 1; i < this.blocks.length; i++) {
+        if (this.blocks[i].blockId == dubbleBlockId) {
+          if (depth == 0) return this.blocks[i];
+          depth--;
+        } else if (this.blocks[i].blockId == block.blockId) depth++;
+      }
+    } else {
+      for (let i = blockNum - 1; i >= 0; i--) {
+        if (this.blocks[i].blockId == dubbleBlockId) {
+          if (depth == 0) return this.blocks[i];
+          depth--;
+        } else if (this.blocks[i].blockId == block.blockId) depth++;
+      }
+    }
+    console.log("Failed to find conneced dubble block...");
+  }
+
+  /**
+   * @param {BlockList} blockList
+   * @returns {boolean}
+   */
+  isHoveringOverBlocklist(blockList) {
+    const otherHeight = blockList.getTotalHeightOfBlockList();
+    const otherWidth = blockList.getTotalWidthOfBlockList();
+
+    return (
+      this.x > blockList.x - this.snapDistance &&
+      this.x < blockList.x + this.halfSnapDistance + otherWidth &&
+      this.y > blockList.y - this.snapDistance &&
+      this.y < blockList.y + this.halfSnapDistance + otherHeight
+    );
+  }
+  snapDistance = 60;
+  halfSnapDistance = this.snapDistance / 2;
+
+  /**
+   * gets position of block of hovered over blocklist
+   * @param {BlockList} blockList
+   * @returns {number|null}
+   */
+  getHoveringNum(blockList) {
+    let passedHeight = 0;
+    const heightFromTop = this.y - blockList.y;
+    for (let i = 0; i < blockList.blocks.length; i++) {
+      const block = blockList.blocks[i];
+      const blockHeight = block.elem.offsetHeight;
+      const snapDistanceY = blockHeight / 2;
+      const indentation = block.indentation * block.indentationWidth;
+      passedHeight += snapDistanceY;
+      if (
+        passedHeight <= heightFromTop &&
+        passedHeight + 2 * snapDistanceY >= heightFromTop &&
+        this.x > blockList.x + indentation - this.snapDistance &&
+        this.x < blockList.x + indentation + this.snapDistance
+      ) {
+        return i + 1;
+      }
+      passedHeight += snapDistanceY;
+    }
+    return null;
+  }
+
+  /**
+   * @returns {number}
+   */
+  getTotalHeightOfBlockList() {
+    let height = 0;
+    this.blocks.forEach((block) => {
+      height += block.elem.offsetHeight;
+    });
+    return height;
+  }
+
+  /**
+   * @returns {number}
+   */
+  getTotalWidthOfBlockList() {
+    let hightestWidth = 0;
+    this.blocks.forEach((block) => {
+      const totalBlockWidth =
+        block.indentation * block.indentationWidth + block.elem.offsetWidth;
+      hightestWidth = Math.max(hightestWidth, totalBlockWidth);
+    });
+    return hightestWidth;
+  }
+
+  /**
+   * @type {Block[]}
+   */
   blocks = [];
   x = 0;
   y = 0;

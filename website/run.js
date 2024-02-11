@@ -112,6 +112,8 @@ class Runner {
         goToBlock: (blockIdx) => {
           i = blockIdx - 1;
         },
+        getCompiledConnectedDubbleBlock: (...args) =>
+          this.getCompiledConnectedDubbleBlock(...args),
       });
       if (stopEvent) break;
     }
@@ -195,6 +197,39 @@ class Runner {
       newInputs.push({ type, content });
     });
     return newInputs;
+  }
+
+  /**
+   * @param {compiledBlockList} compiledBlockList
+   * @param {number} blockNum
+   * @returns {number}
+   */
+  getCompiledConnectedDubbleBlock(compiledBlockList, blockNum) {
+    const blockTemplate = blockTemplates[compiledBlockList[blockNum].action];
+    const dubbleBlockId = blockIds[blockTemplate.dubbleBlock];
+    let depth = 0;
+    if (blockTemplate.isFirstDubbleBlock) {
+      for (let i = blockNum + 1; i < compiledBlockList.length; i++) {
+        if (compiledBlockList[i].action == dubbleBlockId) {
+          if (depth == 0) return i;
+          depth--;
+        } else if (
+          compiledBlockList[i].action == compiledBlockList[blockNum].action
+        )
+          depth++;
+      }
+    } else {
+      for (let i = blockNum - 1; i >= 0; i--) {
+        if (compiledBlockList[i].action == dubbleBlockId) {
+          if (depth == 0) return i;
+          depth--;
+        } else if (
+          compiledBlockList[i].action == compiledBlockList[blockNum].action
+        )
+          depth++;
+      }
+    }
+    console.log("Failed to find conneced dubble block...");
   }
 
   eventLoop;

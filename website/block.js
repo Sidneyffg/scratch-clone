@@ -7,8 +7,7 @@ class Block {
     this.loadContent(template.content);
     this.elem.addEventListener("mousedown", (e) => {
       e.stopPropagation();
-      this.lastClick = Date.now();
-      this.bubbleClick(e);
+      this.parentBlockList.dragger.startDrag(this);
     });
     this.canConnectBottom = template.canConnectBottom;
     this.canConnectTop = template.canConnectTop;
@@ -23,7 +22,6 @@ class Block {
       this.elem.classList.add("input-block");
     }
   }
-  lastClick = 0;
 
   /**
    * @param {string} color
@@ -74,7 +72,7 @@ class Block {
   }
 
   /**
-   * @param {BlockInput[]} inputs 
+   * @param {BlockInput[]} inputs
    * @returns {Block[]}
    */
   #getNestedBlocks(inputs) {
@@ -86,33 +84,20 @@ class Block {
     return allBlocks;
   }
 
-  /**
-   * @param {Event} e 
-   */
-  bubbleClick(e) {
-    if (!this.parentBlock) {
-      this.parentBlockList.startDrag(e);
-      return;
-    }
-    this.parentBlock.bubbleClick(e);
-  }
-
   releaseInputBlock() {
-    const y = this.parentBlockList.elem.style.top;
-    const x = this.parentBlockList.elem.elem.style.left;
-    const position = { x, y };
-    const newBlockList = blockListHandler.addBlockList({ position });
-    this.parentBlock.inputs.find((e) => e.content == this).updateContent("");
-    this.parentBlock = null;
+    this.parentBlockList.stopDrag();
+    this.parent.inputs.find((e) => e.content == this).updateContent("");
+    const newBlockList = blockListHandler.addBlockList({
+      position: this.parentBlockList,
+    });
     newBlockList.elem.appendChild(this.elem);
     newBlockList.blocks.push(this);
-    this.parentBlockList.stopDrag();
-    this.parentBlockList = newBlockList;
+    this.parent = newBlockList;
     this.parentBlockList.drag();
   }
 
   /**
-   * @param {blockContent} content 
+   * @param {blockContent} content
    */
   loadContent(content) {
     this.elem.innerHTML = "";
@@ -155,14 +140,34 @@ class Block {
     });
   }
 
+  getParentBlockList() {
+    let block = this;
+    while (true) {
+      if (!block.parentBlock) return block.parentBlockList;
+    }
+  }
+
   reloadVariableSelect() {
     const selectedOption = this.variableElem.value;
     this.variableElem.innerHTML = variableHandler.options;
     if (variableHandler.publicVariables[selectedOption] !== undefined)
       this.variableElem.value = selectedOption;
   }
-  parentBlock = null;
-  parentBlockList = null;
+
+  get parentBlockList() {
+    let parent = this.parent;
+    while (true) {
+      if (parent instanceof BlockList) return parent;
+      parent = parent.parent;
+    }
+  }
+  get isSecondDubbleBlock() {
+    return !(this.dubbleBlock && this.isFirstDubbleBlock);
+  }
+  /**
+   * @type {Block|BlockList}
+   */
+  parent = null;
   inputs;
   variableElem;
 }
