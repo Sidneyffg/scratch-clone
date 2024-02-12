@@ -18,10 +18,13 @@ class Dragger {
   }
 
   stopDrag() {
+    const skipHandle = !this.reachedMoveDistance;
     document.onmousemove = null;
     document.onmouseup = null;
     this.totalMovement = null;
     this.reachedMoveDistance = null;
+
+    if (skipHandle) return;
     if (this.blockList.x < blockDisplay.width - blockDisplay.deletionBuffer)
       return blockListHandler.deleteBlockList(this.blockList);
     for (let i = 0; i < blockListHandler.blockLists.length; i++) {
