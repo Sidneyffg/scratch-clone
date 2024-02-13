@@ -85,15 +85,21 @@ class Block {
   }
 
   releaseInputBlock() {
-    this.parentBlockList.stopDrag();
+    const parentBlockList = this.parentBlockList;
+    parentBlockList.dragger.stopDrag();
+
+    const rect = this.elem.getBoundingClientRect();
     this.parent.inputs.find((e) => e.content == this).updateContent("");
     const newBlockList = blockListHandler.addBlockList({
-      position: this.parentBlockList,
+      position: {
+        x: rect.left,
+        y: rect.top,
+      },
     });
     newBlockList.elem.appendChild(this.elem);
     newBlockList.blocks.push(this);
     this.parent = newBlockList;
-    this.parentBlockList.drag();
+    newBlockList.dragger.startDrag(this);
   }
 
   /**

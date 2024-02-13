@@ -4,23 +4,30 @@ class Dragger {
    */
   constructor(blockList) {
     this.blockList = blockList;
+    document.addEventListener("mousemove", (e) => {
+      if (!this.dragging) return;
+      this.#cursurMove(e);
+    });
+    document.addEventListener("mouseup", () => {
+      if (!this.dragging) return;
+      this.stopDrag();
+    });
   }
 
   /**
    * @param {Block} block
    */
   startDrag(block) {
+    if (!block) return console.error("No block for drag");
+    this.dragging = true;
     this.lastClickedBlock = block;
-    document.onmousemove = (e) => this.#cursurMove(e);
-    document.onmouseup = () => this.stopDrag();
     this.totalMovement = { x: 0, y: 0 };
     this.reachedMoveDistance = false;
   }
 
   stopDrag() {
+    this.dragging = false;
     const skipHandle = !this.reachedMoveDistance;
-    document.onmousemove = null;
-    document.onmouseup = null;
     this.totalMovement = null;
     this.reachedMoveDistance = null;
 
@@ -97,6 +104,7 @@ class Dragger {
         if (this.lastClickedBlock.isInputBlock)
           this.lastClickedBlock.releaseInputBlock();
         else this.blockList.releaseFromBlockList(this.lastClickedBlock);
+        return;
       }
       this.reachedMoveDistance = true;
       this.blockList.move(this.totalMovement);
@@ -107,6 +115,7 @@ class Dragger {
   /**
    * @type {Block}
    */
+  dragging = false;
   lastClickedBlock;
   totalMovement;
   reachedMoveDistance;
