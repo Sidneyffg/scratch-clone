@@ -66,6 +66,8 @@ class BlockList {
 
   delete() {
     this.elem.remove();
+    const idx = blockListHandler.blockLists.indexOf(this);
+    blockListHandler.blockLists.splice(idx, 1);
   }
 
   /**

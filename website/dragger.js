@@ -33,7 +33,7 @@ class Dragger {
 
     if (skipHandle) return;
     if (this.blockList.x < blockDisplay.width - blockDisplay.deletionBuffer)
-      return blockListHandler.deleteBlockList(this.blockList);
+      return this.blockList.delete();
     for (let i = 0; i < blockListHandler.blockLists.length; i++) {
       const otherBlockList = blockListHandler.blockLists[i];
       if (this.blockList === otherBlockList) continue;
@@ -53,7 +53,7 @@ class Dragger {
         const input = inputs[i];
         if (!input.canSnap(this.blockList)) continue;
         input.addBlockToInput(this.blockList.blocks[0]);
-        blockListHandler.deleteBlockList(this.blockList);
+        this.blockList.delete();
         return true;
       }
       return false;
