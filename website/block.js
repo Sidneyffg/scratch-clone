@@ -102,6 +102,37 @@ class Block {
     newBlockList.dragger.startDrag(this);
   }
 
+  releaseFromBlockList() {
+    const rect = this.elem.getBoundingClientRect();
+    const newBlockList = blockListHandler.addBlockList({
+      position: this.parent,
+    });
+    const idx = this.parent.blocks.indexOf(this);
+    for (let i = 0; i < idx; i++) {
+      newBlockList.transferBlock(this.parent.blocks[0]);
+      this.parent.blocks.shift();
+    }
+    let depth = 0;
+    for (let i = 0; i < this.parent.blocks.length; i++) {
+      const block = this.parent.blocks[i];
+      if (block.isSecondDubbleBlock) {
+        if (depth == 0) {
+          const blocksToRemove = this.parent.blocks.length - i;
+          for (let j = 0; j < blocksToRemove; j++) {
+            newBlockList.transferBlock(this.parent.blocks[i]);
+            this.parent.blocks.splice(i, 1);
+          }
+          break;
+        }
+        depth--;
+      }
+      if (block.isFirstDubbleBlock) depth++;
+    }
+    this.parent.setPosition({ x: rect.left, y: rect.top });
+    this.parent.reloadIndentations();
+    newBlockList.reloadIndentations();
+  }
+
   /**
    * @param {blockContent} content
    */
@@ -168,7 +199,7 @@ class Block {
     }
   }
   get isSecondDubbleBlock() {
-    return !(this.dubbleBlock && this.isFirstDubbleBlock);
+    return this.dubbleBlock && !this.isFirstDubbleBlock;
   }
   /**
    * @type {Block|BlockList}

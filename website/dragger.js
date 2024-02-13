@@ -103,7 +103,7 @@ class Dragger {
       if (this.lastClickedBlock != this.blockList.blocks[0]) {
         if (this.lastClickedBlock.isInputBlock)
           this.lastClickedBlock.releaseInputBlock();
-        else this.blockList.releaseFromBlockList(this.lastClickedBlock);
+        else this.lastClickedBlock.releaseFromBlockList();
         return;
       }
       this.reachedMoveDistance = true;
@@ -116,6 +116,9 @@ class Dragger {
    * @type {Block}
    */
   dragging = false;
+  /**
+   * @type {Block}
+   */
   lastClickedBlock;
   totalMovement;
   reachedMoveDistance;

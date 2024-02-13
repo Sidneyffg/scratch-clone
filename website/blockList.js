@@ -25,6 +25,14 @@ class BlockList {
   }
 
   /**
+   * @param {Block} block
+   */
+  transferBlock(block) {
+    this.elem.appendChild(block.elem);
+    this.blocks.push(block);
+  }
+
+  /**
    * @param {number} pos
    * @param {BlockList} blockList
    */
@@ -43,44 +51,6 @@ class BlockList {
     }
     blockList.delete();
     this.reloadIndentations();
-  }
-
-  /**
-   * @param {Block} block
-   */
-  releaseFromBlockList(block) {
-    const newBlockList = blockListHandler.addBlockList({
-      position: { x: this.x, y: this.y },
-    });
-    let missingBlockHeight = 0;
-    const startPos = this.blocks.indexOf(block);
-    for (let i = 0; i < startPos; i++) {
-      missingBlockHeight += this.blocks[0].elem.offsetHeight;
-      newBlockList.elem.appendChild(this.blocks[0].elem);
-      newBlockList.blocks.push(this.blocks.shift());
-    }
-    let depth = 0;
-    for (let i = 0; i < this.blocks.length; i++) {
-      const block = this.blocks[i];
-      if (isSecondDubbleBlock(block)) {
-        if (depth == 0) {
-          const blocksToRemove = this.blocks.length - i;
-          for (let j = 0; j < blocksToRemove; j++) {
-            newBlockList.elem.appendChild(this.blocks[i].elem);
-            newBlockList.blocks.push(this.blocks.splice(i, 1)[0]);
-          }
-          break;
-        }
-        depth--;
-      }
-      if (block.isFirstDubbleBlock) depth++;
-    }
-    this.move({
-      x: this.blocks[0].indentation * this.blocks[0].indentationWidth,
-      y: missingBlockHeight,
-    });
-    this.reloadIndentations();
-    newBlockList.reloadIndentations();
   }
 
   /**
