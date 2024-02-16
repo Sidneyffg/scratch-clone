@@ -11,7 +11,7 @@ class BlockInput {
     this.content = content;
     this.elem = elem;
     this.elem.addEventListener("keydown", (e) => {
-      if (typeof this.content == "object") return e.preventDefault();
+      if (typeof this.content == "object") return;
       if (e.key.length != 1) {
         if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key))
           return;
@@ -36,7 +36,6 @@ class BlockInput {
   addBlockToInput(block) {
     this.elem.innerHTML = "";
     this.elem.appendChild(block.elem);
-    this.elem.classList.add("input-with-block");
     block.parent = this.parent;
     this.updateContent(block);
   }
@@ -63,6 +62,10 @@ class BlockInput {
    */
   updateContent(newContent, event = null) {
     if (typeof newContent == "string") {
+      if (typeof this.content != "string") {
+        this.elem.contentEditable = true;
+        this.elem.classList.remove("input-with-block");
+      }
       for (let i = 0; i < newContent.length; i++) {
         if (!allowedChars[this.type].includes(newContent[i]))
           return event.preventDefault();
@@ -73,7 +76,13 @@ class BlockInput {
         }
       } else this.content = newContent;
       return;
-    } else if (typeof newContent == "object") this.content = newContent;
+    } else if (typeof newContent == "object") {
+      if (typeof this.content != "object") {
+        this.elem.contentEditable = false;
+        this.elem.classList.add("input-with-block");
+      }
+      this.content = newContent;
+    }
   }
   snapDistance = 15;
   stdWidth = 30;
