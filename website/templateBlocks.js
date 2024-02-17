@@ -191,9 +191,23 @@ const blockTemplates = [
     canConnectTop: false,
     isDubbleBlock: false,
     isInputBlock: true,
-    name: "plus",
     getValue(inputs) {
       return parseFloat(inputs[0]) + parseFloat(inputs[1]);
+    },
+  },
+  {
+    content: [
+      { element: "input", type: "float" },
+      "-",
+      { element: "input", type: "float" },
+    ],
+    color: "#00ab41",
+    canConnectBottom: false,
+    canConnectTop: false,
+    isDubbleBlock: false,
+    isInputBlock: true,
+    getValue(inputs) {
+      return parseFloat(inputs[0]) - parseFloat(inputs[1]);
     },
   },
   {
@@ -207,9 +221,23 @@ const blockTemplates = [
     canConnectTop: false,
     isDubbleBlock: false,
     isInputBlock: true,
-    name: "multiply",
     getValue(inputs) {
       return parseFloat(inputs[0]) * parseFloat(inputs[1]);
+    },
+  },
+  {
+    content: [
+      { element: "input", type: "float" },
+      "/",
+      { element: "input", type: "float" },
+    ],
+    color: "#00ab41",
+    canConnectBottom: false,
+    canConnectTop: false,
+    isDubbleBlock: false,
+    isInputBlock: true,
+    getValue(inputs) {
+      return parseFloat(inputs[0]) / parseFloat(inputs[1]);
     },
   },
 ];
@@ -217,5 +245,6 @@ const blockTemplates = [
 const blockIds = {};
 blockTemplates.forEach((e, idx) => {
   e.blockId = idx;
+  if (e.name === undefined) return;
   blockIds[e.name] = e.blockId;
 });

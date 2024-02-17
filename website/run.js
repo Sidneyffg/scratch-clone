@@ -123,12 +123,32 @@ class Runner {
   }
 
   genInputValueOfCompiledBlock(input) {
-    if (!input.isBlock) return input.content;
+    if (!input.isBlock) return this.parseInputValue(input.content, input.type);
     const values = [];
     input.content.forEach((content) => {
       values.push(this.genInputValueOfCompiledBlock(content));
     });
-    return blockTemplates[input.blockId].getValue(values);
+    return this.parseInputValue(
+      blockTemplates[input.blockId].getValue(values).toString(),
+      input.type
+    );
+  }
+
+  /**
+   * @param {string} value
+   * @param {blockInputType} type
+   */
+  parseInputValue(value, type) {
+    switch (type) {
+      case "string":
+        return value;
+      case "float":
+        const floatVal = parseFloat(value);
+        return floatVal ? floatVal : 0;
+      case "int":
+        const intVal = parseInt(value);
+        return intVal ? intVal : 0;
+    }
   }
 
   /**
@@ -206,8 +226,14 @@ class Runner {
     const content = [];
     block.inputs.forEach((input) => {
       if (typeof input.content == "string")
-        return content.push({ content: input.content, isBlock: false });
-      content.push(this.compileInputBlock(input.content, false));
+        return content.push({
+          content: input.content,
+          isBlock: false,
+          type: input.type,
+        });
+      const newContent = this.compileInputBlock(input.content, false);
+      newContent.type = input.type;
+      content.push(newContent);
     });
     if (firstIteration) return content;
     return { content, blockId: block.blockId, isBlock: true };
