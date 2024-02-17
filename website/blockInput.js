@@ -72,8 +72,6 @@ class BlockInput {
       }
       if (this.type == "number") {
         this.content = parseInt(newContent);
-        if (true) {
-        }
       } else this.content = newContent;
       return;
     } else if (typeof newContent == "object") {

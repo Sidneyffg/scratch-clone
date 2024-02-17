@@ -71,7 +71,6 @@ class Runner {
   }
 
   /**
-   *
    * @param {eventLoopItem} eventLoopItem
    */
   runEvent({ compiledBlockListId, startLine }) {
@@ -84,8 +83,12 @@ class Runner {
       const compiledBlock = compiledBlockList[i];
       if (typeof blockTemplates[compiledBlock.action].run != "function")
         continue;
+      const inputs = [];
+      compiledBlock.inputs.forEach((e) =>
+        inputs.push(this.genInputValueOfCompiledBlock(e))
+      );
       blockTemplates[compiledBlock.action].run({
-        inputs: compiledBlock.inputs,
+        inputs,
         variableName: compiledBlock.variableName,
         compiledBlockListId,
         compiledBlockList,
@@ -117,6 +120,15 @@ class Runner {
       });
       if (stopEvent) break;
     }
+  }
+
+  genInputValueOfCompiledBlock(input) {
+    if (!input.isBlock) return input.content;
+    const values = [];
+    input.content.forEach((content) => {
+      values.push(this.genInputValueOfCompiledBlock(content));
+    });
+    return blockTemplates[input.blockId].getValue(values);
   }
 
   /**
@@ -164,7 +176,7 @@ class Runner {
       blockList.blocks.forEach((block) => {
         compiledBlockList.push({
           action: block.blockId,
-          inputs: this.compileBlockInputs(block.inputs),
+          inputs: this.compileInputBlock(block),
           variableName: block.variableElem?.value,
           data: null,
         });
@@ -188,15 +200,17 @@ class Runner {
   }
 
   /**
-   * @param {BlockInput[]} inputs
-   * @returns
+   * @param {Block} block
    */
-  compileBlockInputs(inputs) {
-    const newInputs = [];
-    inputs.forEach(({ type, content }) => {
-      newInputs.push({ type, content });
+  compileInputBlock(block, firstIteration = true) {
+    const content = [];
+    block.inputs.forEach((input) => {
+      if (typeof input.content == "string")
+        return content.push({ content: input.content, isBlock: false });
+      content.push(this.compileInputBlock(input.content, false));
     });
-    return newInputs;
+    if (firstIteration) return content;
+    return { content, blockId: block.blockId, isBlock: true };
   }
 
   /**

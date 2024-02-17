@@ -17,7 +17,7 @@ const blockTemplates = [
     canConnectTop: true,
     isDubbleBlock: false,
     run({ inputs }) {
-      console.log("[log]", inputs[0].content);
+      console.log("[log]", inputs[0]);
     },
   },
   {
@@ -33,7 +33,7 @@ const blockTemplates = [
       addEventLoopItem,
       broadcastBlockLists,
     }) {
-      const broadcastId = inputs[0].content;
+      const broadcastId = inputs[0];
       if (!broadcastId) return;
       broadcastBlockLists.forEach((e) => {
         if (e.broadcastId != broadcastId) return;
@@ -107,7 +107,7 @@ const blockTemplates = [
       let action;
       let data = compiledBlockData.get();
       if (data == null) {
-        const repeatNumber = inputs[0].content;
+        const repeatNumber = inputs[0];
         if (!repeatNumber) action = "continue";
         else {
           compiledBlockData.set(repeatNumber);
@@ -177,7 +177,7 @@ const blockTemplates = [
         variableHandler.publicVariables[variableName] === undefined
       )
         return;
-      variableHandler.publicVariables[variableName] = inputs[0].content;
+      variableHandler.publicVariables[variableName] = inputs[0];
     },
   },
   {
@@ -191,8 +191,25 @@ const blockTemplates = [
     canConnectTop: false,
     isDubbleBlock: false,
     isInputBlock: true,
-    run({ inputs }) {
-      return inputs[0].content + inputs[1].content;
+    name: "plus",
+    getValue(inputs) {
+      return parseFloat(inputs[0]) + parseFloat(inputs[1]);
+    },
+  },
+  {
+    content: [
+      { element: "input", type: "float" },
+      "*",
+      { element: "input", type: "float" },
+    ],
+    color: "#00ab41",
+    canConnectBottom: false,
+    canConnectTop: false,
+    isDubbleBlock: false,
+    isInputBlock: true,
+    name: "multiply",
+    getValue(inputs) {
+      return parseFloat(inputs[0]) * parseFloat(inputs[1]);
     },
   },
 ];

@@ -9,6 +9,7 @@ interface blockTemplate {
   isInputBlock?: boolean;
   name: string;
   run?: (_: blockTemplateRun) => {};
+  getValue?: (inputs: string[]) => {};
 }
 
 type blockContent = Array<
