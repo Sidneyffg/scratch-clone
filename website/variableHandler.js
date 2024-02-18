@@ -28,7 +28,28 @@ class VariableHandler {
    */
   addVariable(name) {
     this.publicVariables[name] = "0";
+    this.addBlockTemplate(name);
+    blockDisplay.reload();
     this.setOptions();
+  }
+  /**
+   * @param {string} name
+   */
+  addBlockTemplate(name) {
+    const blockTemplate = {
+      blockId: blockTemplates.length,
+      content: [name],
+      color: "orange",
+      canConnectBottom: false,
+      canConnectTop: false,
+      isDubbleBlock: false,
+      isInputBlock: true,
+      variableName: name,
+      getValue() {
+        return variableHandler.publicVariables[this.variableName];
+      },
+    };
+    blockTemplates.push(blockTemplate);
   }
 
   resetVariables() {

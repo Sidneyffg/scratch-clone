@@ -142,7 +142,7 @@ class Block {
     this.variableElem = null;
     content.forEach((e) => {
       if (typeof e == "string") {
-        const elem = createElem("span", { innerHTML: e });
+        const elem = createElem("span", { innerHTML: e, classList: "text" });
         this.elem.appendChild(elem);
       }
       switch (e.element) {

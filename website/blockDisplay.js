@@ -15,6 +15,15 @@ class BlockDisplay {
     });
   }
 
+  reload() {
+    blockListHandler.blockLists.forEach((blockList) => {
+      if (!blockList.static) return;
+      blockList.delete();
+    });
+    this.elem.innerHTML = "";
+    this.init();
+  }
+
   /**
    * @param {HTMLElement} div
    * @param {blockTemplate} blockTemplate
